@@ -116,6 +116,7 @@ input{font-family:inherit}
 
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
+const API = 'https://hirex-api-bgm9.onrender.com';
 
 /* ════════════════════════════════════════════
    HIREX LOGO SVG
@@ -292,13 +293,21 @@ const AuthPage = ({ navigate, theme, toggleTheme }) => {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
 
-  const submit = async (e) => {
+const submit = async (e) => {
     e.preventDefault(); setErr('');
     if(mode==='signup' && form.password!==form.confirm){setErr('Passwords do not match.');return;}
     setLoading(true);
-    await new Promise(r=>setTimeout(r,900));
-    setLoading(false);
-    navigate('verify', {email:form.email});
+    try {
+      const endpoint = mode==='signup' ? '/api/auth/register' : '/api/auth/login';
+      const body = mode==='signup'
+        ? {name:form.name, email:form.email, password:form.password}
+        : {email:form.email, password:form.password};
+      const res = await fetch(API+endpoint, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.detail||'Something went wrong');
+      navigate('verify', {email:form.email});
+    } catch(e){ setErr(e.message); }
+    finally{ setLoading(false); }
   };
   return (
     <div style={{minHeight:'100vh',position:'relative',background:'linear-gradient(135deg,#070b1f 0%,#0d1140 55%,#0a0820 100%)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
@@ -385,8 +394,21 @@ const VerifyPage = ({ navigate, theme, toggleTheme, state }) => {
   const handleChange=(i,v)=>{if(!/^\d*$/.test(v))return;const n=[...otp];n[i]=v.slice(-1);setOtp(n);if(v&&i<5)refs.current[i+1]?.focus();};
   const handleKey=(i,e)=>{if(e.key==='Backspace'&&!otp[i]&&i>0)refs.current[i-1]?.focus();};
   const handlePaste=(e)=>{e.preventDefault();const t=e.clipboardData.getData('text').replace(/\D/g,'').slice(0,6);const n=[...otp];t.split('').forEach((c,i)=>{n[i]=c;});setOtp(n);if(t.length<6)refs.current[t.length]?.focus();};
-  const resend=()=>{setTimer(45);setCanResend(false);setOtp(['','','','','','']);};
-  const go=async(role)=>{setLoading(true);await new Promise(r=>setTimeout(r,700));setLoading(false);navigate(role==='candidate'?'candidate':'hr-dash');};
+ const resend=async()=>{
+    setTimer(45);setCanResend(false);setOtp(['','','','','','']);
+    await fetch(API+'/api/auth/resend-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
+  };
+  const go=async()=>{
+    setLoading(true);
+    try{
+      const res=await fetch(API+'/api/auth/verify-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,otp:otp.join('')})});
+      const data=await res.json();
+      if(!res.ok) throw new Error(data.detail||'Invalid OTP');
+      localStorage.setItem('hirex_token',data.access_token);
+      navigate(data.role==='hr'||data.role==='admin'?'hr-dash':'candidate');
+    }catch(e){alert(e.message);}
+    finally{setLoading(false);}
+  };
   const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
   const otpFull=otp.join('').length===6;
 
@@ -472,7 +494,7 @@ const VerifyPage = ({ navigate, theme, toggleTheme, state }) => {
                 :<span><span style={{color:'#818cf8',fontWeight:700}}>Resend OTP</span> in <strong>{fmt(timer)}</strong></span>}
             </div>
             {/* Verify */}
-            <button className="btn btn-primary" style={{width:'100%',marginBottom:22}} onClick={()=>go('candidate')} disabled={!otpFull||loading}>
+          <button className="btn btn-primary" style={{width:'100%',marginBottom:22}} onClick={go} disabled={!otpFull||loading}>
               {loading?'Verifying...':'Verify OTP'}
             </button>
             {/* OR */}
@@ -486,7 +508,7 @@ const VerifyPage = ({ navigate, theme, toggleTheme, state }) => {
                 <div style={{width:48,height:48,borderRadius:'50%',background:'rgba(91,95,255,.14)',border:'2px solid rgba(91,95,255,.28)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
                 <div style={{fontSize:15,fontWeight:800,marginBottom:3}}>Candidate</div>
                 <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginBottom:12,lineHeight:1.4}}>I'm here to take tests and grow my career</div>
-                <button className="btn btn-primary" style={{width:'100%',padding:'10px 6px',fontSize:12.5}} onClick={()=>go('candidate')} disabled={loading}>Continue as Candidate →</button>
+               <button className="btn btn-primary" style={{width:'100%',padding:'10px 6px',fontSize:12.5}} onClick={go} disabled={loading}>Continue as Candidate →</button>
               </div>
               <div className="card-dark" style={{padding:'18px 14px',textAlign:'center',border:'2px solid rgba(16,185,129,.22)',background:'rgba(16,185,129,.05)',cursor:'pointer',transition:'border-color .2s'}}
                 onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(16,185,129,.55)'}
@@ -495,7 +517,7 @@ const VerifyPage = ({ navigate, theme, toggleTheme, state }) => {
                 <div style={{width:48,height:48,borderRadius:'50%',background:'rgba(16,185,129,.14)',border:'2px solid rgba(16,185,129,.28)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
                 <div style={{fontSize:15,fontWeight:800,marginBottom:3}}>HR / Admin</div>
                 <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginBottom:12,lineHeight:1.4}}>I'm here to hire and find the best talent</div>
-                <button className="btn btn-green" style={{width:'100%',padding:'10px 6px',fontSize:12.5}} onClick={()=>go('hr')} disabled={loading}>Continue as HR / Admin →</button>
+              <button className="btn btn-green" style={{width:'100%',padding:'10px 6px',fontSize:12.5}} onClick={go} disabled={loading}>Continue as HR / Admin →</button>
               </div>
             </div>
             <div style={{textAlign:'center',marginTop:18,fontSize:12,color:'rgba(255,255,255,.3)',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>
@@ -516,7 +538,19 @@ const HRLoginPage = ({ navigate, theme, toggleTheme }) => {
   const [form, setForm] = useState({email:'',password:'',remember:false});
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
-  const submit = async(e)=>{e.preventDefault();setLoading(true);await new Promise(r=>setTimeout(r,900));setLoading(false);navigate('hr-dash');};
+ const [err, setErr] = useState('');
+  const submit = async(e)=>{
+    e.preventDefault();setLoading(true);setErr('');
+    try{
+      const res=await fetch(API+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:form.email,password:form.password})});
+      const data=await res.json();
+      if(!res.ok) throw new Error(data.detail||'Login failed');
+      if(data.role!=='hr'&&data.role!=='admin') throw new Error('Not an HR/Admin account');
+      localStorage.setItem('hirex_token',data.access_token);
+      navigate('hr-dash');
+    }catch(e){setErr(e.message);}
+    finally{setLoading(false);}
+  };
   const feats=[{i:'💼',c:'#5b5fff',t:'Manage Jobs',d:'Create jobs, set test rounds and customize criteria.'},{i:'👥',c:'#8b5cf6',t:'Evaluate Candidates',d:'View applications, test scores and AI analysis.'},{i:'📊',c:'#06b6d4',t:'Smart Reports',d:'Get detailed insights and performance reports.'},{i:'🛡️',c:'#10b981',t:'Secure & Reliable',d:'Enterprise-grade security to protect your data.'}];
   return(
     <div style={{display:'flex',minHeight:'100vh',background:'#070b1f'}}>
@@ -589,7 +623,8 @@ const HRLoginPage = ({ navigate, theme, toggleTheme }) => {
                 </label>
                 <button type="button" style={{background:'none',border:'none',color:'#4f46e5',fontSize:13,fontWeight:600,cursor:'pointer'}}>Forgot Password?</button>
               </div>
-              <button type="submit" disabled={loading} style={{width:'100%',padding:'14px',borderRadius:11,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#5b5fff,#9333ea)',color:'white',fontSize:14.5,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',gap:8,boxShadow:'0 4px 18px rgba(91,95,255,.3)',transition:'all .22s'}}>
+           {err&&<div style={{padding:'10px 14px',background:'rgba(239,68,68,.1)',border:'1px solid rgba(239,68,68,.3)',borderRadius:9,fontSize:13,color:'#ef4444'}}>{err}</div>}
+              <button type="submit" disabled={loading} style={{width:'100%',padding:'14px',borderRadius:11,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#5b5fff,#9333ea)',
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                 {loading?'Logging in...':'Login to Dashboard'}
               </button>
