@@ -3,13 +3,14 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+
   server: {
-    port: 3000,
     proxy: {
       '/api': {
-        target: 'https://hirex-api-bgm9.onrender.com,
+        target: 'https://hirex-api-bgm9.onrender.com',
         changeOrigin: true,
-      }
-    }
-  }
+        secure: true,
+      },
+    },
+  },
 })
