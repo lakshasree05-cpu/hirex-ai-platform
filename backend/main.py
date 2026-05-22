@@ -27,17 +27,16 @@ ALLOWED_ORIGINS = os.getenv("FRONTEND_URL", "http://localhost:3000").split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS + [
+    allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
+        "https://hirex-ai-platform-selw.vercel.app",
+        "https://hirex-ai-platform.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # ── Routes ───────────────────────────────────────────────────────────────
 app.include_router(auth.router)
 app.include_router(candidates.router)
