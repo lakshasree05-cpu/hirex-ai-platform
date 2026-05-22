@@ -8,7 +8,13 @@ from passlib.context import CryptContext
 from database import get_db
 import models, schemas
 import os
+import os
+import smtplib
 
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+from fastapi import HTTPException
 # SMTP imports
 import smtplib
 from email.mime.text import MIMEText
@@ -41,34 +47,38 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 
 def generate_otp(length: int = 6) -> str:
+    print(f"Generated OTP for {payload.email}: {otp}")
     return "".join(random.choices(string.digits, k=length))
 
 
 # SMTP Email Sender
 def send_otp_email(email: str, otp: str):
-    try:
-        smtp_host = os.getenv("SMTP_HOST")
-        smtp_port = int(os.getenv("SMTP_PORT", 587))
-        smtp_user = os.getenv("SMTP_USER")
-        smtp_password = os.getenv("SMTP_PASSWORD")
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_port = int(os.getenv("SMTP_PORT", 587))
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
 
-        subject = "HireX Email Verification OTP"
+    if not smtp_user or not smtp_password:
+        raise Exception("SMTP credentials missing")
 
-        body = f"""
+    subject = "HireX Email Verification OTP"
+
+    body = f"""
 Your HireX verification OTP is:
 
 {otp}
 
-This OTP will expire in 10 minutes.
+This OTP expires in 10 minutes.
 """
 
-        msg = MIMEMultipart()
-        msg["From"] = smtp_user
-        msg["To"] = email
-        msg["Subject"] = subject
+    msg = MIMEMultipart()
+    msg["From"] = smtp_user
+    msg["To"] = email
+    msg["Subject"] = subject
 
-        msg.attach(MIMEText(body, "plain"))
+    msg.attach(MIMEText(body, "plain"))
 
+    try:
         server = smtplib.SMTP(smtp_host, smtp_port)
         server.starttls()
         server.login(smtp_user, smtp_password)
@@ -78,7 +88,11 @@ This OTP will expire in 10 minutes.
         print(f"OTP email sent to {email}")
 
     except Exception as e:
-        print(f"Failed to send OTP email: {e}")
+        print("SMTP ERROR:", str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=f"Email sending failed: {str(e)}"
+        )
 
 
 @router.post("/register", response_model=dict)
