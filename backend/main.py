@@ -21,18 +21,21 @@ app = FastAPI(
 )
 
 # ── CORS ────────────────────────────────────────────────────────────────
-ALLOWED_ORIGINS = os.getenv("FRONTEND_URL", "http://localhost:3000").split(",")
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://hirex-ai-platform-selw.vercel.app",
+    "https://hirex-ai-platform.vercel.app",
+]
 
-ALLOWED_ORIGINS = os.getenv("FRONTEND_URL", "http://localhost:3000").split(",")
+frontend_url = os.getenv("FRONTEND_URL")
+
+if frontend_url:
+    ALLOWED_ORIGINS.append(frontend_url)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "https://hirex-ai-platform-selw.vercel.app",
-        "https://hirex-ai-platform.vercel.app",
-    ],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
