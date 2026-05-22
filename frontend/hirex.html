@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HIREX – AI Interview Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;transition:background 0.3s,color 0.3s}
+body.dark{background:#070b1f;color:#fff}
+body.light{background:#eef0ff;color:#0f172a}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit;border:none}
+input{font-family:inherit}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(91,95,255,0.4);border-radius:3px}
+
+/* ===== KEYFRAMES ===== */
+@keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+@keyframes floatR{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(14px) rotate(2deg)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes progressFill{from{stroke-dashoffset:283}to{stroke-dashoffset:0}}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+
+/* ===== UTILITY ===== */
+.anim-su{animation:slideUp .65s ease both}
+.anim-fi{animation:fadeIn .5s ease both}
+.anim-si{animation:scaleIn .45s ease both}
+.gradient-text{background:linear-gradient(135deg,#7c6ff7,#9333ea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gradient-text-blue{background:linear-gradient(135deg,#5b5fff,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gradient-text-green{background:linear-gradient(135deg,#10b981,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gradient-text-head{background:linear-gradient(135deg,#818cf8 0%,#c084fc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ===== CARD ===== */
+.card-dark{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);border-radius:14px;backdrop-filter:blur(12px)}
+.card-light{background:rgba(255,255,255,.85);border:1px solid rgba(79,70,229,.12);border-radius:14px}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 28px;border-radius:13px;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all .22s ease;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,#5b5fff 0%,#9333ea 100%);color:#fff;box-shadow:0 4px 20px rgba(91,95,255,.38)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(91,95,255,.5)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-outline-white{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.28);backdrop-filter:blur(8px)}
+.btn-outline-white:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.5);transform:translateY(-2px)}
+.btn-green{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 4px 18px rgba(16,185,129,.3)}
+.btn-green:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(16,185,129,.45)}
+.btn-white-form{background:#fff;color:#4f46e5;font-weight:700;border:2px solid #e2e8f0}
+.btn-white-form:hover{border-color:#c7d2fe;background:#f0f2ff;transform:translateY(-1px)}
+
+/* ===== INPUTS ===== */
+.input-dark{width:100%;padding:13px 16px 13px 42px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);border-radius:11px;color:#fff;font-size:14px;outline:none;transition:all .2s}
+.input-dark::placeholder{color:rgba(255,255,255,.3)}
+.input-dark:focus{border-color:#5b5fff;background:rgba(91,95,255,.08);box-shadow:0 0 0 3px rgba(91,95,255,.15)}
+.input-light{width:100%;padding:13px 16px 13px 42px;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:11px;color:#0f172a;font-size:14px;outline:none;transition:all .2s}
+.input-light::placeholder{color:#94a3b8}
+.input-light:focus{border-color:#5b5fff;box-shadow:0 0 0 3px rgba(91,95,255,.1)}
+
+/* ===== SIDEBAR ===== */
+.sidebar{width:236px;min-height:100vh;background:linear-gradient(180deg,#0a0e28 0%,#0d1340 100%);border-right:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;overflow:hidden}
+.nav-item{width:100%;display:flex;align-items:center;gap:11px;padding:11px 20px;background:transparent;border-left:3px solid transparent;border:none;color:rgba(255,255,255,.5);font-size:13.5px;font-weight:400;cursor:pointer;transition:all .2s;text-align:left}
+.nav-item:hover{background:rgba(255,255,255,.04);color:rgba(255,255,255,.8)}
+.nav-item.active{background:linear-gradient(90deg,rgba(91,95,255,.22),rgba(91,95,255,.05));border-left:3px solid #5b5fff;color:#fff;font-weight:600}
+
+/* ===== TOPBAR ===== */
+.topbar{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(10,14,40,.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+
+/* ===== PROGRESS RING ===== */
+.progress-ring circle{transition:stroke-dashoffset 1.2s ease}
+
+/* ===== SCROLLABLE MAIN ===== */
+.dash-main{flex:1;overflow-y:auto;min-width:0}
+
+/* ===== ROUND CARD HOVER ===== */
+.round-card{transition:transform .22s ease,box-shadow .22s ease}
+.round-card:hover{transform:translateY(-5px)}
+
+/* ===== THEME TOGGLE ===== */
+.theme-pill{display:flex;align-items:center;gap:4px;padding:6px 8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:50px;cursor:pointer;transition:background .2s}
+.theme-pill:hover{background:rgba(255,255,255,.13)}
+.theme-btn{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;transition:all .22s}
+.divider-thin{height:1px;background:rgba(255,255,255,.07);width:100%}
+
+/* ===== OTP INPUT ===== */
+.otp-input{width:52px;height:58px;text-align:center;font-size:22px;font-weight:700;background:rgba(255,255,255,.05);border-radius:12px;border:2px solid rgba(255,255,255,.1);color:#fff;outline:none;transition:all .2s}
+.otp-input:focus,.otp-input.filled{border-color:#5b5fff;box-shadow:0 0 14px rgba(91,95,255,.3);background:rgba(91,95,255,.08)}
+
+/* ===== STAT BAR ===== */
+.stat-bar-fill{height:100%;border-radius:4px;transition:width 1.2s ease}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .two-col-layout{flex-direction:column!important}
+  .sidebar{width:200px}
+  .hide-sm{display:none!important}
+}
+@media(max-width:640px){
+  .sidebar{display:none}
+  .rounds-grid{grid-template-columns:repeat(2,1fr)!important}
+}
+</style>
+</head>
+<body class="dark">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+/* ════════════════════════════════════════════
+   HIREX LOGO SVG
+════════════════════════════════════════════ */
+const HirexIcon = ({ size = 52 }) => (
+  <svg width={size} height={size * 1.18} viewBox="0 0 52 62" fill="none">
+    <defs>
+      <linearGradient id="hL" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#7c6ff7"/><stop offset="1" stopColor="#4f46e5"/></linearGradient>
+      <linearGradient id="hR" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#9333ea"/><stop offset="1" stopColor="#7c3aed"/></linearGradient>
+      <linearGradient id="hB" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#6366f1"/><stop offset="1" stopColor="#8b5cf6"/></linearGradient>
+    </defs>
+    <rect x="0" y="0" width="17" height="62" rx="3" fill="url(#hL)"/>
+    <rect x="35" y="0" width="17" height="62" rx="3" fill="url(#hR)"/>
+    <rect x="17" y="22" width="18" height="18" rx="2" fill="url(#hB)"/>
+  </svg>
+);
+
+const HirexBrand = ({ size = 'md' }) => {
+  const sizes = { sm:[32,20,9], md:[46,26,10], lg:[62,36,12] };
+  const [ic, tx, sub] = sizes[size] || sizes.md;
+  return (
+    <div style={{display:'flex',alignItems:'center',gap:size==='sm'?8:12}}>
+      <HirexIcon size={ic}/>
+      <div>
+        <div style={{fontFamily:"'Space Grotesk','Inter',sans-serif",fontSize:tx,fontWeight:800,color:'#fff',letterSpacing:.5,lineHeight:1}}>HIREX</div>
+        <div style={{fontSize:sub,color:'rgba(255,255,255,.45)',letterSpacing:'0.14em',marginTop:2,textTransform:'uppercase',fontWeight:500}}>AI Interview Platform</div>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   ANIMATED CANVAS BACKGROUND
+════════════════════════════════════════════ */
+const AnimatedBg = () => {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let animId, t = 0;
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    resize();
+    window.addEventListener('resize', resize);
+    const pts = Array.from({length:70},(_,i)=>({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,r:Math.random()*1.8+.4,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,op:Math.random()*.5+.15,h:i<35?230+Math.random()*30:268+Math.random()*28}));
+    const draw = () => {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      t+=.007;
+      // left glow blobs
+      for(let i=0;i<4;i++){
+        const wx=canvas.width*.14+Math.cos(t*.7+i)*.55*60,wy=canvas.height*.5+Math.sin(t+i*1.2)*115;
+        const g=ctx.createRadialGradient(wx,wy,0,wx,wy,270-i*38);
+        g.addColorStop(0,`rgba(79,91,255,${.16-i*.028})`);g.addColorStop(.6,`rgba(99,102,241,${.06-i*.01})`);g.addColorStop(1,'transparent');
+        ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(wx,wy,270-i*38,195-i*28,Math.sin(t*.28)*.4,0,Math.PI*2);ctx.fill();
+      }
+      // wave lines left
+      for(let w=0;w<5;w++){
+        ctx.beginPath();ctx.strokeStyle=`rgba(79,91,255,${.1-w*.016})`;ctx.lineWidth=1.4-w*.18;
+        for(let x=0;x<canvas.width*.52;x+=4){
+          const y=canvas.height*(.28+w*.12)+Math.sin(x*.008+t+w)*50+Math.cos(x*.005+t*.7)*28;
+          x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+      }
+      // right glow blobs
+      for(let i=0;i<3;i++){
+        const wx=canvas.width*.83+Math.cos(t*.6+i*.8)*.5*48,wy=canvas.height*.44+Math.sin(t*.8+i*1.5)*98;
+        const g=ctx.createRadialGradient(wx,wy,0,wx,wy,240-i*48);
+        g.addColorStop(0,`rgba(147,51,234,${.18-i*.036})`);g.addColorStop(.5,`rgba(124,58,237,${.07-i*.018})`);g.addColorStop(1,'transparent');
+        ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(wx,wy,240-i*48,172-i*28,Math.cos(t*.38)*.45,0,Math.PI*2);ctx.fill();
+      }
+      // wave lines right
+      for(let w=0;w<4;w++){
+        ctx.beginPath();ctx.strokeStyle=`rgba(147,51,234,${.09-w*.018})`;ctx.lineWidth=1.1;
+        for(let x=Math.round(canvas.width*.5);x<canvas.width+20;x+=4){
+          const y=canvas.height*(.33+w*.12)+Math.sin(x*.007-t+w*.8)*52+Math.cos(x*.004-t*.58)*24;
+          x===Math.round(canvas.width*.5)?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+      }
+      // particles
+      pts.forEach(p=>{
+        p.x+=p.vx;p.y+=p.vy;
+        if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;
+        if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;
+        const osc=Math.sin(t*2+p.x*.01)*.18+p.op;
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=`hsla(${p.h},78%,68%,${Math.max(0,osc)})`;ctx.fill();
+      });
+      animId=requestAnimationFrame(draw);
+    };
+    draw();
+    return()=>{cancelAnimationFrame(animId);window.removeEventListener('resize',resize);};
+  },[]);
+  return <canvas ref={canvasRef} style={{position:'absolute',inset:0,zIndex:0,pointerEvents:'none'}}/>;
+};
+
+/* ════════════════════════════════════════════
+   THEME TOGGLE
+════════════════════════════════════════════ */
+const ThemeToggle = ({ theme, toggle }) => (
+  <div className="theme-pill" onClick={toggle}>
+    <button className="theme-btn" style={{background:theme==='dark'?'rgba(255,255,255,.9)':'transparent',color:theme==='dark'?'#f59e0b':'rgba(255,255,255,.4)'}}>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+    <span style={{color:'rgba(255,255,255,.3)',fontSize:13}}>|</span>
+    <button className="theme-btn" style={{background:theme==='light'?'rgba(79,70,229,.85)':'transparent',color:theme==='light'?'#fff':'rgba(255,255,255,.4)'}}>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+);
+
+/* ════════════════════════════════════════════
+   1. LANDING PAGE
+════════════════════════════════════════════ */
+const LandingPage = ({ navigate, theme, toggleTheme }) => {
+  const features = [
+    {icon:'🎯',title:'AI-Powered Assessments',desc:'Smart evaluation across aptitude, coding, typing, and interview rounds with real-time analysis.'},
+    {icon:'📊',title:'Insightful Reports',desc:'Detailed performance analytics and comparison dashboards for smarter hiring decisions.'},
+    {icon:'🔒',title:'Anti-Cheat Monitoring',desc:'Face detection, tab-switching alerts, eye tracking and background noise detection.'},
+    {icon:'⚡',title:'Instant Results',desc:'Auto-evaluated scores published instantly after each round with transparent criteria.'},
+  ];
+  return (
+    <div style={{minHeight:'100vh',position:'relative',overflow:'hidden',background:'linear-gradient(135deg,#070b1f 0%,#0d1140 50%,#0a0820 100%)',display:'flex',flexDirection:'column',alignItems:'center'}}>
+      <AnimatedBg/>
+      <div style={{position:'absolute',top:24,right:28,zIndex:10}}><ThemeToggle theme={theme} toggle={toggleTheme}/></div>
+
+      {/* Hero */}
+      <div className="anim-su" style={{position:'relative',zIndex:5,textAlign:'center',display:'flex',flexDirection:'column',alignItems:'center',padding:'120px 20px 60px',gap:0}}>
+        <div style={{marginBottom:18,filter:'drop-shadow(0 0 40px rgba(91,95,255,.5))'}}>
+          <HirexIcon size={92}/>
+        </div>
+        <h1 style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:'clamp(54px,9vw,92px)',fontWeight:900,color:'#fff',letterSpacing:5,lineHeight:1,marginBottom:8,textShadow:'0 0 60px rgba(91,95,255,.4)'}}>
+          HIREX
+        </h1>
+        <p style={{fontSize:'clamp(10px,1.5vw,13px)',fontWeight:600,letterSpacing:'0.38em',color:'rgba(255,255,255,.5)',textTransform:'uppercase',marginBottom:14}}>
+          AI &nbsp; INTERVIEW &nbsp; PLATFORM
+        </p>
+        <div style={{height:2,width:80,background:'linear-gradient(90deg,#5b5fff,#9333ea)',borderRadius:2,marginBottom:18}}/>
+        <p style={{fontSize:'clamp(16px,2.2vw,22px)',color:'rgba(255,255,255,.75)',fontWeight:400,marginBottom:44,letterSpacing:.3}}>
+          Smarter Interviews. Better Hiring.
+        </p>
+        <div style={{display:'flex',gap:16,flexWrap:'wrap',justifyContent:'center'}}>
+          <button className="btn btn-primary" onClick={()=>navigate('auth')} style={{minWidth:205,fontSize:16,padding:'15px 36px'}}>
+            Get Started
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <button className="btn btn-outline-white" style={{minWidth:178,fontSize:16,padding:'15px 36px'}} onClick={()=>document.getElementById('feat')?.scrollIntoView({behavior:'smooth'})}>
+            Learn More
+          </button>
+        </div>
+      </div>
+
+      {/* Features */}
+      <div id="feat" style={{position:'relative',zIndex:5,width:'100%',maxWidth:1100,padding:'0 24px 80px',display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:18}}>
+        {features.map((f,i)=>(
+          <div key={i} className="card-dark anim-su" style={{padding:'26px 22px',animationDelay:`${.15+i*.08}s`,animationFillMode:'both'}}>
+            <div style={{fontSize:30,marginBottom:10}}>{f.icon}</div>
+            <h3 style={{fontSize:15,fontWeight:700,marginBottom:7,color:'#fff'}}>{f.title}</h3>
+            <p style={{fontSize:13,color:'rgba(255,255,255,.5)',lineHeight:1.65}}>{f.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   2. AUTH PAGE (Login / Sign Up)
+════════════════════════════════════════════ */
+const AuthPage = ({ navigate, theme, toggleTheme }) => {
+  const [mode, setMode] = useState('login');
+  const [form, setForm] = useState({name:'',email:'',password:'',confirm:''});
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState('');
+
+  const submit = async (e) => {
+    e.preventDefault(); setErr('');
+    if(mode==='signup' && form.password!==form.confirm){setErr('Passwords do not match.');return;}
+    setLoading(true);
+    await new Promise(r=>setTimeout(r,900));
+    setLoading(false);
+    navigate('verify', {email:form.email});
+  };
+  return (
+    <div style={{minHeight:'100vh',position:'relative',background:'linear-gradient(135deg,#070b1f 0%,#0d1140 55%,#0a0820 100%)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+      <AnimatedBg/>
+      <div style={{position:'absolute',top:24,left:28,zIndex:10,cursor:'pointer'}} onClick={()=>navigate('landing')}><HirexBrand size="sm"/></div>
+      <div style={{position:'absolute',top:24,right:28,zIndex:10}}><ThemeToggle theme={theme} toggle={toggleTheme}/></div>
+
+      <div className="card-dark anim-si" style={{position:'relative',zIndex:5,width:'100%',maxWidth:455,padding:'38px 34px',margin:'0 20px'}}>
+        {/* Tab */}
+        <div style={{display:'flex',background:'rgba(255,255,255,.05)',borderRadius:11,padding:4,marginBottom:30}}>
+          {['login','signup'].map(m=>(
+            <button key={m} onClick={()=>{setMode(m);setErr('');}} style={{flex:1,padding:'10px',borderRadius:8,border:'none',fontWeight:600,fontSize:14,background:mode===m?'linear-gradient(135deg,#5b5fff,#9333ea)':'transparent',color:mode===m?'#fff':'rgba(255,255,255,.45)',transition:'all .22s',cursor:'pointer'}}>
+              {m==='login'?'Login':'Sign Up'}
+            </button>
+          ))}
+        </div>
+
+        <h2 style={{fontSize:22,fontWeight:800,marginBottom:5}}>{mode==='login'?'Welcome back! 👋':'Create Account'}</h2>
+        <p style={{fontSize:13.5,color:'rgba(255,255,255,.45)',marginBottom:26}}>{mode==='login'?'Login to continue your journey.':'Join HIREX and start your career journey.'}</p>
+
+        <form onSubmit={submit} style={{display:'flex',flexDirection:'column',gap:16}}>
+          {mode==='signup'&&(
+            <div>
+              <label style={{fontSize:12.5,color:'rgba(255,255,255,.5)',fontWeight:500,display:'block',marginBottom:6}}>Full Name</label>
+              <div style={{position:'relative'}}>
+                <span style={{position:'absolute',left:13,top:'50%',transform:'translateY(-50%)',color:'rgba(255,255,255,.25)'}}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <input className="input-dark" type="text" placeholder="Your full name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required/>
+              </div>
+            </div>
+          )}
+          <div>
+            <label style={{fontSize:12.5,color:'rgba(255,255,255,.5)',fontWeight:500,display:'block',marginBottom:6}}>Email Address</label>
+            <div style={{position:'relative'}}>
+              <span style={{position:'absolute',left:13,top:'50%',transform:'translateY(-50%)',color:'rgba(255,255,255,.25)'}}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+              <input className="input-dark" type="email" placeholder="you@example.com" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required/>
+            </div>
+          </div>
+          <div>
+            <label style={{fontSize:12.5,color:'rgba(255,255,255,.5)',fontWeight:500,display:'block',marginBottom:6}}>Password</label>
+            <div style={{position:'relative'}}>
+              <span style={{position:'absolute',left:13,top:'50%',transform:'translateY(-50%)',color:'rgba(255,255,255,.25)'}}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+              <input className="input-dark" type={showPw?'text':'password'} placeholder="••••••••" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} required style={{paddingRight:44}}/>
+              <button type="button" onClick={()=>setShowPw(!showPw)} style={{position:'absolute',right:13,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'rgba(255,255,255,.3)',cursor:'pointer'}}>
+                {showPw?<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>:<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>}
+              </button>
+            </div>
+          </div>
+          {mode==='signup'&&(
+            <div>
+              <label style={{fontSize:12.5,color:'rgba(255,255,255,.5)',fontWeight:500,display:'block',marginBottom:6}}>Confirm Password</label>
+              <div style={{position:'relative'}}>
+                <span style={{position:'absolute',left:13,top:'50%',transform:'translateY(-50%)',color:'rgba(255,255,255,.25)'}}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                <input className="input-dark" type="password" placeholder="••••••••" value={form.confirm} onChange={e=>setForm({...form,confirm:e.target.value})} required/>
+              </div>
+            </div>
+          )}
+          {mode==='login'&&<div style={{textAlign:'right'}}><button type="button" style={{background:'none',border:'none',color:'#818cf8',fontSize:13,cursor:'pointer',fontWeight:500}}>Forgot Password?</button></div>}
+          {err&&<div style={{padding:'10px 14px',background:'rgba(239,68,68,.1)',border:'1px solid rgba(239,68,68,.28)',borderRadius:9,fontSize:13,color:'#f87171'}}>{err}</div>}
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{width:'100%',padding:'14px',marginTop:4}}>
+            {loading?<><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{animation:'spin 1s linear infinite'}}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Processing...</>:mode==='login'?'Login to Account':'Create Account'}
+          </button>
+          <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{flex:1,height:1,background:'rgba(255,255,255,.08)'}}/><span style={{fontSize:12,color:'rgba(255,255,255,.3)'}}>OR</span><div style={{flex:1,height:1,background:'rgba(255,255,255,.08)'}}/></div>
+          <button type="button" className="btn btn-outline-white" onClick={()=>navigate('hr-login')} style={{width:'100%'}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Login as HR / Admin
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   3. EMAIL VERIFICATION PAGE
+════════════════════════════════════════════ */
+const VerifyPage = ({ navigate, theme, toggleTheme, state }) => {
+  const email = state?.email || 'example@gmail.com';
+  const [otp, setOtp] = useState(['','','','','','']);
+  const [timer, setTimer] = useState(45);
+  const [canResend, setCanResend] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const refs = useRef([]);
+  useEffect(()=>{if(timer>0){const t=setTimeout(()=>setTimer(v=>v-1),1000);return()=>clearTimeout(t);}else setCanResend(true);},[timer]);
+  const handleChange=(i,v)=>{if(!/^\d*$/.test(v))return;const n=[...otp];n[i]=v.slice(-1);setOtp(n);if(v&&i<5)refs.current[i+1]?.focus();};
+  const handleKey=(i,e)=>{if(e.key==='Backspace'&&!otp[i]&&i>0)refs.current[i-1]?.focus();};
+  const handlePaste=(e)=>{e.preventDefault();const t=e.clipboardData.getData('text').replace(/\D/g,'').slice(0,6);const n=[...otp];t.split('').forEach((c,i)=>{n[i]=c;});setOtp(n);if(t.length<6)refs.current[t.length]?.focus();};
+  const resend=()=>{setTimer(45);setCanResend(false);setOtp(['','','','','','']);};
+  const go=async(role)=>{setLoading(true);await new Promise(r=>setTimeout(r,700));setLoading(false);navigate(role==='candidate'?'candidate':'hr-dash');};
+  const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  const otpFull=otp.join('').length===6;
+
+  return (
+    <div style={{display:'flex',minHeight:'100vh',background:'#070b1f'}}>
+      {/* Left */}
+      <div style={{flex:'0 0 460px',maxWidth:460,padding:'44px 36px',display:'flex',flexDirection:'column',justifyContent:'space-between',background:'linear-gradient(160deg,#070b1f 0%,#0d1140 100%)',position:'relative',overflow:'hidden',borderRight:'1px solid rgba(255,255,255,.06)'}} className="hide-sm">
+        <div style={{position:'absolute',bottom:-70,left:-70,width:320,height:320,borderRadius:'50%',background:'radial-gradient(circle,rgba(91,95,255,.13) 0%,transparent 70%)',animation:'float 6s ease-in-out infinite'}}/>
+        <div style={{position:'absolute',top:'30%',right:-50,width:220,height:220,borderRadius:'50%',background:'radial-gradient(circle,rgba(147,51,234,.1) 0%,transparent 70%)',animation:'floatR 8s ease-in-out infinite'}}/>
+        <div style={{position:'relative',zIndex:2}}>
+          <div style={{cursor:'pointer'}} onClick={()=>navigate('landing')}><HirexBrand size="sm"/></div>
+          <div style={{marginTop:44}}>
+            <h1 style={{fontSize:32,fontWeight:800,lineHeight:1.2,marginBottom:14}}>One Step Closer to Your <span className="gradient-text">Dream Job!</span></h1>
+            <p style={{fontSize:13.5,color:'rgba(255,255,255,.5)',lineHeight:1.7,marginBottom:32}}>Verify your email to access personalized interviews, AI-powered evaluations and better career opportunities.</p>
+            {[{i:'🛡️',b:'rgba(30,45,90,.8)',t:'Secure & Trusted',d:'Your data is protected with enterprise-grade security.'},{i:'🤖',b:'rgba(26,32,80,.8)',t:'AI-Powered Evaluation',d:'Smart assessment across multiple rounds to find the best talent.'},{i:'📊',b:'rgba(30,36,80,.8)',t:'Insightful Reports',d:'Detailed performance reports to track your progress.'}].map((f,i)=>(
+              <div key={i} style={{display:'flex',gap:13,alignItems:'flex-start',marginBottom:18}}>
+                <div style={{width:40,height:40,borderRadius:10,background:f.b,border:'1px solid rgba(255,255,255,.07)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:18}}>{f.i}</div>
+                <div><div style={{fontSize:13.5,fontWeight:700,marginBottom:2}}>{f.t}</div><div style={{fontSize:12,color:'rgba(255,255,255,.45)',lineHeight:1.5}}>{f.d}</div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Envelope illustration */}
+        <div style={{position:'relative',zIndex:2,display:'flex',justifyContent:'center',marginBottom:24}}>
+          <div style={{animation:'float 4s ease-in-out infinite',position:'relative'}}>
+            <svg width="140" height="115" viewBox="0 0 140 115" fill="none">
+              <defs><linearGradient id="eg1" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#7c6ff7"/><stop offset="1" stopColor="#4f46e5"/></linearGradient></defs>
+              <rect x="10" y="28" width="120" height="78" rx="8" fill="url(#eg1)" opacity=".9"/>
+              <rect x="10" y="28" width="120" height="78" rx="8" fill="none" stroke="rgba(255,255,255,.18)" strokeWidth="1"/>
+              <path d="M10 36 L70 72 L130 36" stroke="rgba(255,255,255,.28)" strokeWidth="1.5" fill="none"/>
+              <line x1="10" y1="106" x2="54" y2="62" stroke="rgba(255,255,255,.12)" strokeWidth="1"/>
+              <line x1="130" y1="106" x2="86" y2="62" stroke="rgba(255,255,255,.12)" strokeWidth="1"/>
+              <circle cx="93" cy="88" r="17" fill="#10b981"/>
+              <polyline points="86,88 91,93 101,81" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+            </svg>
+          </div>
+        </div>
+        {/* Quote */}
+        <div style={{position:'relative',zIndex:2,padding:'18px 22px',background:'rgba(255,255,255,.04)',borderRadius:12,border:'1px solid rgba(255,255,255,.06)'}}>
+          <div style={{fontSize:28,color:'#818cf8',lineHeight:1,marginBottom:6,fontFamily:'Georgia,serif'}}>"</div>
+          <p style={{fontSize:12.5,color:'rgba(255,255,255,.65)',lineHeight:1.65,fontStyle:'italic',marginBottom:6}}>The future belongs to those who believe in the beauty of their dreams.</p>
+          <p style={{fontSize:12,color:'#818cf8',fontWeight:600}}>– Eleanor Roosevelt</p>
+        </div>
+      </div>
+
+      {/* Right */}
+      <div style={{flex:1,background:'linear-gradient(160deg,#0d1140 0%,#100d38 100%)',display:'flex',flexDirection:'column',minWidth:0}}>
+        <div style={{padding:'18px 22px',display:'flex',justifyContent:'flex-end'}}><ThemeToggle theme={theme} toggle={toggleTheme}/></div>
+        <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px 22px 40px'}}>
+          <div className="anim-su" style={{width:'100%',maxWidth:490}}>
+            {/* Icon */}
+            <div style={{display:'flex',justifyContent:'center',marginBottom:22}}>
+              <div style={{position:'relative'}}>
+                <div style={{width:76,height:76,borderRadius:'50%',background:'linear-gradient(135deg,rgba(91,95,255,.18),rgba(147,51,234,.18))',border:'2px solid rgba(91,95,255,.28)',display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(8px)'}}>
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <div style={{position:'absolute',bottom:-2,right:-2,width:24,height:24,borderRadius:'50%',background:'#10b981',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+              </div>
+            </div>
+            <h2 style={{textAlign:'center',fontSize:24,fontWeight:800,marginBottom:7}} className="gradient-text-head">Verify Your Email</h2>
+            <p style={{textAlign:'center',fontSize:13.5,color:'rgba(255,255,255,.45)',marginBottom:6}}>We've sent a 6-digit OTP to</p>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginBottom:18}}>
+              <div style={{padding:'7px 14px',background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.1)',borderRadius:8,fontSize:13.5,fontWeight:500}}>{email}</div>
+              <button onClick={()=>navigate('auth')} style={{background:'none',border:'none',color:'rgba(255,255,255,.35)',cursor:'pointer',padding:4}}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </div>
+            <p style={{textAlign:'center',fontSize:13,color:'rgba(255,255,255,.4)',marginBottom:18}}>Enter the OTP below to continue</p>
+            {/* OTP Inputs */}
+            <div style={{display:'flex',gap:10,justifyContent:'center',marginBottom:20}}>
+              {otp.map((d,i)=>(
+                <input key={i} ref={el=>refs.current[i]=el} type="text" inputMode="numeric" maxLength={1} value={d}
+                  onChange={e=>handleChange(i,e.target.value)} onKeyDown={e=>handleKey(i,e)} onPaste={handlePaste}
+                  className={`otp-input${d?' filled':''}`}/>
+              ))}
+            </div>
+            {/* Timer */}
+            <div style={{textAlign:'center',marginBottom:22,fontSize:13,color:'rgba(255,255,255,.4)'}}>
+              Didn't receive the code?{' '}
+              {canResend?<button onClick={resend} style={{background:'none',border:'none',color:'#818cf8',fontWeight:700,cursor:'pointer',fontSize:13}}>Resend OTP</button>
+                :<span><span style={{color:'#818cf8',fontWeight:700}}>Resend OTP</span> in <strong>{fmt(timer)}</strong></span>}
+            </div>
+            {/* Verify */}
+            <button className="btn btn-primary" style={{width:'100%',marginBottom:22}} onClick={()=>go('candidate')} disabled={!otpFull||loading}>
+              {loading?'Verifying...':'Verify OTP'}
+            </button>
+            {/* OR */}
+            <div style={{textAlign:'center',fontSize:10.5,fontWeight:700,letterSpacing:'0.18em',color:'rgba(255,255,255,.3)',marginBottom:14}}>OR CONTINUE AS</div>
+            {/* Role cards */}
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+              <div className="card-dark" style={{padding:'18px 14px',textAlign:'center',border:'2px solid rgba(91,95,255,.22)',background:'rgba(91,95,255,.05)',cursor:'pointer',transition:'border-color .2s'}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(91,95,255,.55)'}
+                onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(91,95,255,.22)'}
+              >
+                <div style={{width:48,height:48,borderRadius:'50%',background:'rgba(91,95,255,.14)',border:'2px solid rgba(91,95,255,.28)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                <div style={{fontSize:15,fontWeight:800,marginBottom:3}}>Candidate</div>
+                <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginBottom:12,lineHeight:1.4}}>I'm here to take tests and grow my career</div>
+                <button className="btn btn-primary" style={{width:'100%',padding:'10px 6px',fontSize:12.5}} onClick={()=>go('candidate')} disabled={loading}>Continue as Candidate →</button>
+              </div>
+              <div className="card-dark" style={{padding:'18px 14px',textAlign:'center',border:'2px solid rgba(16,185,129,.22)',background:'rgba(16,185,129,.05)',cursor:'pointer',transition:'border-color .2s'}}
+                onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(16,185,129,.55)'}
+                onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(16,185,129,.22)'}
+              >
+                <div style={{width:48,height:48,borderRadius:'50%',background:'rgba(16,185,129,.14)',border:'2px solid rgba(16,185,129,.28)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 10px'}}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+                <div style={{fontSize:15,fontWeight:800,marginBottom:3}}>HR / Admin</div>
+                <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginBottom:12,lineHeight:1.4}}>I'm here to hire and find the best talent</div>
+                <button className="btn btn-green" style={{width:'100%',padding:'10px 6px',fontSize:12.5}} onClick={()=>go('hr')} disabled={loading}>Continue as HR / Admin →</button>
+              </div>
+            </div>
+            <div style={{textAlign:'center',marginTop:18,fontSize:12,color:'rgba(255,255,255,.3)',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Your information is <strong style={{color:'#34d399'}}>100% secure</strong> and encrypted
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   4. HR LOGIN PAGE
+════════════════════════════════════════════ */
+const HRLoginPage = ({ navigate, theme, toggleTheme }) => {
+  const [form, setForm] = useState({email:'',password:'',remember:false});
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const submit = async(e)=>{e.preventDefault();setLoading(true);await new Promise(r=>setTimeout(r,900));setLoading(false);navigate('hr-dash');};
+  const feats=[{i:'💼',c:'#5b5fff',t:'Manage Jobs',d:'Create jobs, set test rounds and customize criteria.'},{i:'👥',c:'#8b5cf6',t:'Evaluate Candidates',d:'View applications, test scores and AI analysis.'},{i:'📊',c:'#06b6d4',t:'Smart Reports',d:'Get detailed insights and performance reports.'},{i:'🛡️',c:'#10b981',t:'Secure & Reliable',d:'Enterprise-grade security to protect your data.'}];
+  return(
+    <div style={{display:'flex',minHeight:'100vh',background:'#070b1f'}}>
+      {/* Left */}
+      <div style={{flex:'0 0 500px',maxWidth:500,padding:'40px 44px',display:'flex',flexDirection:'column',justifyContent:'space-between',background:'linear-gradient(160deg,#070b1f 0%,#0d1140 100%)',position:'relative',overflow:'hidden',borderRight:'1px solid rgba(255,255,255,.06)'}} className="hide-sm">
+        <div style={{position:'absolute',bottom:-80,left:-80,width:380,height:380,borderRadius:'50%',background:'radial-gradient(circle,rgba(91,95,255,.11) 0%,transparent 70%)',animation:'float 7s ease-in-out infinite'}}/>
+        <div style={{position:'relative',zIndex:2}}>
+          <div style={{cursor:'pointer',marginBottom:36}} onClick={()=>navigate('landing')}><HirexBrand size="sm"/></div>
+          <div style={{display:'inline-flex',alignItems:'center',gap:7,padding:'5px 13px',background:'rgba(91,95,255,.1)',border:'1px solid rgba(91,95,255,.2)',borderRadius:20,fontSize:11.5,fontWeight:600,color:'#818cf8',marginBottom:22}}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            HR / ADMIN PORTAL
+          </div>
+          <h1 style={{fontSize:'clamp(28px,3.5vw,42px)',fontWeight:900,lineHeight:1.2,marginBottom:14}}>Smarter Hiring.<br/>Stronger <span className="gradient-text">Teams.</span></h1>
+          <p style={{fontSize:13.5,color:'rgba(255,255,255,.45)',lineHeight:1.7,maxWidth:360,marginBottom:36}}>Access your dashboard to manage jobs, evaluate candidates, track performance and hire the best talent with AI.</p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+            {feats.map((f,i)=>(
+              <div key={i} style={{padding:'14px',background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.06)',borderRadius:11}}>
+                <div style={{fontSize:20,marginBottom:7}}>{f.i}</div>
+                <div style={{fontSize:12.5,fontWeight:700,color:f.c,marginBottom:3}}>{f.t}</div>
+                <div style={{fontSize:11.5,color:'rgba(255,255,255,.4)',lineHeight:1.5}}>{f.d}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Mini dashboard */}
+        <div style={{position:'relative',zIndex:2,background:'rgba(13,19,64,.7)',border:'1px solid rgba(255,255,255,.07)',borderRadius:11,padding:'14px'}}>
+          <div style={{display:'flex',alignItems:'center',gap:7,marginBottom:10}}>
+            <div style={{width:22,height:22,borderRadius:4,background:'linear-gradient(135deg,#5b5fff,#9333ea)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:'white'}}>H</div>
+            <span style={{fontSize:11,fontWeight:700}}>HIREX Dashboard</span>
+          </div>
+          <div style={{display:'flex',gap:3,alignItems:'flex-end',height:44}}>
+            {[35,58,42,72,50,82,62,78,46,86].map((h,i)=>(
+              <div key={i} style={{flex:1,height:`${h}%`,borderRadius:'2px 2px 0 0',background:`linear-gradient(180deg,${i%2===0?'#5b5fff':'#9333ea'},rgba(91,95,255,.2))`}}/>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Right */}
+      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:'40px 28px',background:'linear-gradient(160deg,#0d1140 0%,#170d40 100%)'}}>
+        <div className="anim-si" style={{width:'100%',maxWidth:450}}>
+          <div style={{background:'white',borderRadius:20,padding:'42px 38px',boxShadow:'0 20px 60px rgba(0,0,0,.4)'}}>
+            <div style={{display:'flex',justifyContent:'center',marginBottom:22}}>
+              <div style={{width:76,height:76,borderRadius:'50%',background:'#f0f2ff',border:'3px solid #e8ebff',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            </div>
+            <h2 style={{textAlign:'center',fontSize:22,fontWeight:800,color:'#0f172a',marginBottom:5}}>HR / Admin Login</h2>
+            <p style={{textAlign:'center',fontSize:13.5,color:'#64748b',marginBottom:28}}>Welcome back! Please login to your account.</p>
+            <form onSubmit={submit} style={{display:'flex',flexDirection:'column',gap:18}}>
+              <div>
+                <label style={{fontSize:13,fontWeight:600,color:'#374151',display:'block',marginBottom:6}}>Email Address</label>
+                <div style={{position:'relative'}}>
+                  <span style={{position:'absolute',left:13,top:'50%',transform:'translateY(-50%)',color:'#9ca3af'}}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                  <input className="input-light" style={{paddingLeft:42}} type="email" placeholder="Enter your email address" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required/>
+                </div>
+              </div>
+              <div>
+                <label style={{fontSize:13,fontWeight:600,color:'#374151',display:'block',marginBottom:6}}>Password</label>
+                <div style={{position:'relative'}}>
+                  <span style={{position:'absolute',left:13,top:'50%',transform:'translateY(-50%)',color:'#9ca3af'}}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                  <input className="input-light" style={{paddingLeft:42,paddingRight:44}} type={showPw?'text':'password'} placeholder="Enter your password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} required/>
+                  <button type="button" onClick={()=>setShowPw(!showPw)} style={{position:'absolute',right:13,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'#9ca3af',cursor:'pointer'}}>
+                    {showPw?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>}
+                  </button>
+                </div>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <label style={{display:'flex',alignItems:'center',gap:7,cursor:'pointer',fontSize:13,color:'#374151'}}>
+                  <input type="checkbox" checked={form.remember} onChange={e=>setForm({...form,remember:e.target.checked})} style={{width:15,height:15,accentColor:'#4f46e5'}}/>Remember me
+                </label>
+                <button type="button" style={{background:'none',border:'none',color:'#4f46e5',fontSize:13,fontWeight:600,cursor:'pointer'}}>Forgot Password?</button>
+              </div>
+              <button type="submit" disabled={loading} style={{width:'100%',padding:'14px',borderRadius:11,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#5b5fff,#9333ea)',color:'white',fontSize:14.5,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',gap:8,boxShadow:'0 4px 18px rgba(91,95,255,.3)',transition:'all .22s'}}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                {loading?'Logging in...':'Login to Dashboard'}
+              </button>
+              <div style={{display:'flex',alignItems:'center',gap:10}}><div style={{flex:1,height:1,background:'#e2e8f0'}}/><span style={{fontSize:12,color:'#94a3b8'}}>or</span><div style={{flex:1,height:1,background:'#e2e8f0'}}/></div>
+              <button type="button" className="btn-white-form" style={{width:'100%',padding:'13px',borderRadius:11,fontSize:14,display:'flex',alignItems:'center',justifyContent:'center',gap:8,cursor:'pointer',background:'white',border:'2px solid #e2e8f0',color:'#374151',fontWeight:600,transition:'all .2s'}}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Login with SSO
+              </button>
+              <p style={{textAlign:'center',fontSize:13,color:'#64748b'}}>Don't have an account? <button type="button" style={{background:'none',border:'none',color:'#4f46e5',fontWeight:600,cursor:'pointer',fontSize:13}}>Contact Super Admin</button></p>
+            </form>
+            <div style={{marginTop:10,display:'flex',alignItems:'center',gap:5,justifyContent:'center',fontSize:12,color:'#94a3b8'}}>
+              <button type="button" style={{background:'none',border:'none',color:'#5b5fff',fontWeight:600,cursor:'pointer',fontSize:12}} onClick={()=>navigate('auth')}>← Back to Candidate Login</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   SIDEBAR (Candidate)
+════════════════════════════════════════════ */
+const Sidebar = ({ active, setActive, navigate }) => {
+  const items=[{i:'⊞',l:'Dashboard',k:'overview'},{i:'🎯',l:'Test Rounds',k:'test-rounds'},{i:'🤖',l:'AI Interview',k:'ai-interview'},{i:'📈',l:'My Performance',k:'performance'},{i:'📄',l:'My Reports',k:'reports'},{i:'💬',l:'Messages',k:'messages',b:2},{i:'🔔',l:'Notifications',k:'notifications',b:4},{i:'👤',l:'Profile',k:'profile'},{i:'❓',l:'Help & Support',k:'help'}];
+  return(
+    <aside className="sidebar">
+      <div style={{padding:'22px 18px',borderBottom:'1px solid rgba(255,255,255,.06)',cursor:'pointer'}} onClick={()=>navigate('landing')}><HirexBrand size="sm"/></div>
+      <nav style={{flex:1,padding:'10px 0',overflowY:'auto'}}>
+        {items.map(it=>(
+          <button key={it.k} className={`nav-item${active===it.k?' active':''}`} onClick={()=>setActive(it.k)}>
+            <span style={{fontSize:15,flexShrink:0}}>{it.i}</span>
+            <span style={{flex:1}}>{it.l}</span>
+            {it.b&&<span style={{background:'#ef4444',color:'white',fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:10}}>{it.b}</span>}
+          </button>
+        ))}
+      </nav>
+      <div style={{margin:'10px 12px',padding:'14px',background:'linear-gradient(135deg,rgba(91,95,255,.13),rgba(147,51,234,.13))',border:'1px solid rgba(91,95,255,.18)',borderRadius:13}}>
+        <div style={{fontSize:12,fontWeight:700,color:'#a5b4fc',marginBottom:3}}><span className="gradient-text">AI-Powered</span> Assessments</div>
+        <p style={{fontSize:11,color:'rgba(255,255,255,.4)',lineHeight:1.5,marginBottom:10}}>Smart evaluation for a smarter tomorrow.</p>
+        <div style={{width:46,height:46,borderRadius:'50%',background:'linear-gradient(135deg,#5b5fff,#9333ea)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto',boxShadow:'0 0 18px rgba(91,95,255,.4)',fontSize:22}}>🤖</div>
+        <div style={{fontSize:11,fontWeight:600,color:'#818cf8',textAlign:'center',marginTop:7}}>AI</div>
+      </div>
+      <div style={{borderTop:'1px solid rgba(255,255,255,.06)',padding:'10px 0'}}>
+        <button className="nav-item" style={{color:'rgba(255,255,255,.38)'}} onClick={()=>navigate('landing')}
+          onMouseEnter={e=>e.currentTarget.style.color='#f87171'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,.38)'}>
+          <span style={{fontSize:15}}>↩</span><span>Logout</span>
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+/* ════════════════════════════════════════════
+   TOPBAR (Candidate)
+════════════════════════════════════════════ */
+const TopBar = () => (
+  <header className="topbar">
+    <button style={{background:'none',border:'none',cursor:'pointer',color:'rgba(255,255,255,.5)',padding:8,borderRadius:8,display:'flex',alignItems:'center'}}>
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div style={{display:'flex',alignItems:'center',gap:14}}>
+      <button style={{position:'relative',background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.1)',borderRadius:10,width:39,height:39,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'rgba(255,255,255,.6)'}}>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span style={{position:'absolute',top:-4,right:-4,width:16,height:16,background:'#ef4444',borderRadius:'50%',fontSize:9,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',color:'white',border:'2px solid #0a0e28'}}>3</span>
+      </button>
+      <div style={{width:1,height:26,background:'rgba(255,255,255,.08)'}}/>
+      <div style={{display:'flex',alignItems:'center',gap:9,cursor:'pointer',padding:'5px 9px',borderRadius:9}}>
+        <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#5b5fff,#9333ea)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div><div style={{fontSize:12.5,fontWeight:600}}>Hello, Candidate</div><div style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>candidate@email.com</div></div>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+  </header>
+);
+
+/* ════════════════════════════════════════════
+   CANDIDATE OVERVIEW PAGE
+════════════════════════════════════════════ */
+const OverviewPage = ({ setActive }) => {
+  const stats=[{l:'Tests Completed',v:'5/6',c:'#34d399',i:'✅'},{l:'Overall Score',v:'87%',c:'#60a5fa',i:'📊'},{l:'Rank',v:'#12',c:'#f59e0b',i:'🏆'},{l:'Next Round',v:'AI Interview',c:'#a78bfa',i:'🤖'}];
+  const rounds=[{n:'Aptitude Test',s:82,c:'#818cf8'},{n:'Reasoning Test',s:90,c:'#60a5fa'},{n:'Coding Test',s:95,c:'#34d399'},{n:'Typing Test',s:88,c:'#f59e0b'},{n:'Group Discussion',s:78,c:'#f472b6'}];
+  return(
+    <div style={{padding:'28px'}}>
+      <h1 style={{fontSize:22,fontWeight:800,marginBottom:4}}>Welcome back, Candidate! 👋</h1>
+      <p style={{color:'rgba(255,255,255,.45)',fontSize:13.5,marginBottom:26}}>Here's your performance overview.</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:14,marginBottom:28}}>
+        {stats.map((s,i)=>(
+          <div key={i} className="card-dark" style={{padding:'18px 20px',borderLeft:`3px solid ${s.c}`}}>
+            <div style={{fontSize:26,marginBottom:6}}>{s.i}</div>
+            <div style={{fontSize:22,fontWeight:800,color:s.c,marginBottom:3}}>{s.v}</div>
+            <div style={{fontSize:12.5,color:'rgba(255,255,255,.45)'}}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:18}}>
+        <div className="card-dark" style={{padding:'22px'}}>
+          <h3 style={{fontSize:15,fontWeight:700,marginBottom:18}}>Round Performance</h3>
+          {rounds.map((r,i)=>(
+            <div key={i} style={{marginBottom:14}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:5}}>
+                <span style={{fontSize:13}}>{r.n}</span>
+                <span style={{fontSize:13,fontWeight:700,color:r.c}}>{r.s}%</span>
+              </div>
+              <div style={{height:7,background:'rgba(255,255,255,.07)',borderRadius:4,overflow:'hidden'}}>
+                <div className="stat-bar-fill" style={{width:`${r.s}%`,background:`linear-gradient(90deg,${r.c},${r.c}88)`}}/>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="card-dark" style={{padding:'22px'}}>
+          <h3 style={{fontSize:15,fontWeight:700,marginBottom:14}}>Quick Actions</h3>
+          {[{l:'Go to Test Rounds',i:'🎯',k:'test-rounds'},{l:'View My Reports',i:'📄',k:'reports'},{l:'Update Profile',i:'👤',k:'profile'},{l:'Contact Support',i:'❓',k:'help'}].map((a,i)=>(
+            <button key={i} onClick={()=>setActive(a.k)} style={{display:'flex',alignItems:'center',gap:9,padding:'11px 13px',background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.07)',borderRadius:9,color:'white',fontSize:13,cursor:'pointer',textAlign:'left',width:'100%',marginBottom:9,transition:'background .2s',fontWeight:500}}
+              onMouseEnter={e=>e.currentTarget.style.background='rgba(91,95,255,.12)'}
+              onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.04)'}
+            ><span>{a.i}</span>{a.l}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   TEST ROUNDS PAGE (matching screenshot 4)
+════════════════════════════════════════════ */
+const TestRoundsPage = ({ goTest }) => {
+  const rounds=[
+    {n:'01',t:'Aptitude Test',c:'#818cf8',bg:'rgba(129,140,248,.09)',b:'rgba(129,140,248,.28)',desc:'Measure your quantitative, logical and analytical ability.',time:'60 min',q:'10 Questions',done:false,e:'🧠',key:'aptitude'},
+    {n:'02',t:'Reasoning Test',c:'#60a5fa',bg:'rgba(96,165,250,.09)',b:'rgba(96,165,250,.28)',desc:'Assess your logical thinking, problem solving and reasoning.',time:'60 min',q:'10 Questions',done:false,e:'💡',key:'reasoning'},
+    {n:'03',t:'Coding Test',c:'#34d399',bg:'rgba(52,211,153,.09)',b:'rgba(52,211,153,.28)',desc:'Evaluate your programming skills and coding knowledge.',time:'90 min',q:'2 Problems',done:false,e:'⌨️',key:'coding'},
+    {n:'04',t:'Typing Test',c:'#f59e0b',bg:'rgba(245,158,11,.09)',b:'rgba(245,158,11,.28)',desc:'Check your typing speed and accuracy.',time:'10 min',q:'1 Session',done:false,e:'⚡',key:'typing'},
+    {n:'05',t:'Group Discussion',c:'#f472b6',bg:'rgba(244,114,182,.09)',b:'rgba(244,114,182,.28)',desc:'Collaborate, communicate and present your ideas.',time:'30 min',q:'1 Session',done:false,e:'👥',key:'gd'},
+    {n:'06',t:'AI Interview',c:'#a78bfa',bg:'rgba(167,139,250,.09)',b:'rgba(167,139,250,.3)',desc:'Face the AI panel and showcase your skills & confidence.',time:'30-40 min',q:'1 Session',done:false,upcoming:true,e:'🤖',key:'ai'},
+  ];
+  const next=[
+    {n:1,t:'Shortlist to HR',c:'#34d399',desc:'Based on your performance across all rounds, you will be shortlisted and sent to the HR team.',time:'After AI Interview'},
+    {n:2,t:'HR Review & Final Evaluation',c:'#60a5fa',desc:'HR will review your profile, performance and conduct a final evaluation.',time:'HR Round'},
+    {n:3,t:'Job Selection',c:'#a78bfa',desc:'Choose your preferred role and start your exciting journey with us!',time:'Offer & Onboarding'},
+  ];
+  const foot=[{i:'🎯',l:'AI Accuracy',d:'Smart evaluation with high accuracy.'},{i:'✅',l:'Fair & Transparent',d:'Unbiased assessment for every candidate.'},{i:'📡',l:'Real-time Insights',d:'Track your progress and improve continuously.'},{i:'🔒',l:'Secure & Confidential',d:'Your data is 100% secure and confidential.'},{i:'⭐',l:'Keep Going!',d:"You've done great so far. All the best! 💪",c:'#f59e0b'}];
+  const circ=2*Math.PI*45;
+  return(
+    <div style={{padding:'28px 24px',maxWidth:1200,margin:'0 auto'}}>
+      {/* Header */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:28,flexWrap:'wrap',gap:16}}>
+        <div>
+          <h1 style={{fontSize:26,fontWeight:800,marginBottom:5}}>You're in the Final Stage! 🚀</h1>
+          <p style={{color:'rgba(255,255,255,.45)',fontSize:13.5}}>Almost there! Ace the AI Interview and take the final step towards your dream job.</p>
+        </div>
+        {/* Progress ring */}
+        <div className="card-dark" style={{padding:'18px 26px',display:'flex',alignItems:'center',gap:18,minWidth:280}}>
+          <div style={{position:'relative',flexShrink:0}}>
+            <svg width="96" height="96" style={{transform:'rotate(-90deg)'}}>
+              <circle cx="48" cy="48" r="45" fill="none" stroke="rgba(255,255,255,.07)" strokeWidth="7"/>
+              <circle cx="48" cy="48" r="45" fill="none" stroke="url(#pg)" strokeWidth="7" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={0} style={{filter:'drop-shadow(0 0 6px rgba(52,211,153,.5))'}}/>
+              <defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#34d399"/><stop offset="1" stopColor="#10b981"/></linearGradient></defs>
+            </svg>
+            <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+              <span style={{fontSize:20,fontWeight:800,color:'#34d399'}}>100%</span>
+            </div>
+          </div>
+          <div>
+            <div style={{fontSize:15,fontWeight:700,marginBottom:3}}>Overall Progress</div>
+            <div style={{fontSize:12.5,color:'#34d399',fontWeight:600,marginBottom:5}}>All Rounds Completed 🎉</div>
+            <div style={{fontSize:36,marginTop:4}}>🏆</div>
+          </div>
+        </div>
+      </div>
+
+      <h2 style={{fontSize:17,fontWeight:700,marginBottom:18}}>Your Journey</h2>
+      <div className="rounds-grid" style={{display:'grid',gridTemplateColumns:'repeat(6,1fr)',gap:13,marginBottom:36}}>
+        {rounds.map((r,i)=>(
+          <div key={i} className="round-card card-dark" onClick={()=>goTest&&goTest(r.key)} style={{padding:'18px 14px',textAlign:'center',background:r.bg,border:`1.5px solid ${r.b}`,position:'relative',cursor:'pointer'}}>
+            {r.upcoming&&<div style={{position:'absolute',top:8,right:8,background:'#5b5fff',color:'white',fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:3,letterSpacing:'.05em'}}>NEW</div>}
+            <div style={{position:'absolute',top:8,left:10,width:26,height:26,borderRadius:7,background:`${r.c}22`,border:`1px solid ${r.c}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,color:r.c}}>{r.n}</div>
+            <div style={{fontSize:36,marginTop:10,marginBottom:10}}>{r.e}</div>
+            <div style={{fontSize:13,fontWeight:700,color:r.c,marginBottom:5}}>{r.t}</div>
+            <div style={{fontSize:11,color:'rgba(255,255,255,.4)',lineHeight:1.5,marginBottom:11}}>{r.desc}</div>
+            <div style={{display:'flex',gap:6,justifyContent:'center',marginBottom:12,flexWrap:'wrap'}}>
+              <span style={{fontSize:9.5,color:'rgba(255,255,255,.35)',display:'flex',alignItems:'center',gap:2}}>⏱ {r.time}</span>
+              <span style={{fontSize:9.5,color:'rgba(255,255,255,.35)',display:'flex',alignItems:'center',gap:2}}>📝 {r.q}</span>
+            </div>
+            <div style={{padding:'7px 10px',background:`${r.c}18`,border:`1px solid ${r.c}40`,borderRadius:8,color:r.c,fontSize:11.5,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>
+              ▶ Start Test
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <h2 style={{fontSize:17,fontWeight:700,marginBottom:16}}>What's Next?</h2>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(245px,1fr))',gap:14,marginBottom:28}}>
+        {next.map((item,i)=>(
+          <div key={i} className="card-dark" style={{padding:'22px 18px'}}>
+            <div style={{display:'flex',alignItems:'center',gap:11,marginBottom:12}}>
+              <div style={{width:30,height:30,borderRadius:'50%',border:`2px solid ${item.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13.5,fontWeight:800,color:item.c,flexShrink:0}}>{item.n}</div>
+              <span style={{fontSize:14,fontWeight:700,color:item.c}}>{item.t}</span>
+            </div>
+            <p style={{fontSize:12.5,color:'rgba(255,255,255,.45)',lineHeight:1.65,marginBottom:12}}>{item.desc}</p>
+            <div style={{display:'flex',alignItems:'center',gap:5,padding:'6px 11px',background:'rgba(255,255,255,.04)',borderRadius:7,width:'fit-content'}}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={item.c} strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span style={{fontSize:11.5,color:'rgba(255,255,255,.4)'}}>{item.time}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(155px,1fr))',gap:11}}>
+        {foot.map((s,i)=>(
+          <div key={i} className="card-dark" style={{padding:'13px 14px',display:'flex',gap:9,alignItems:'flex-start'}}>
+            <span style={{fontSize:18}}>{s.i}</span>
+            <div><div style={{fontSize:12,fontWeight:700,color:s.c||'rgba(255,255,255,.8)',marginBottom:2}}>{s.l}</div><div style={{fontSize:11,color:'rgba(255,255,255,.38)',lineHeight:1.4}}>{s.d}</div></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   APTITUDE TEST PAGE
+════════════════════════════════════════════ */
+const AptitudeTestPage = ({ onBack }) => {
+  const questions = [
+    {id:1,q:"A train travels 120 km in 2 hours. What is its speed in km/h?",opts:["50","60","70","80"],ans:1},
+    {id:2,q:"What is 35% of 480?",opts:["168","156","172","160"],ans:0},
+    {id:3,q:"A can do a work in 12 days, B in 18 days. How many days together?",opts:["7.2","6.5","6","8"],ans:0},
+    {id:4,q:"If 8 workers complete a job in 15 days, how many days for 12 workers?",opts:["8","10","12","9"],ans:1},
+    {id:5,q:"Find the ratio: 0.25 : 0.75",opts:["1:2","1:3","2:3","1:4"],ans:1},
+    {id:6,q:"Simple interest on ₹5000 at 8% per annum for 3 years?",opts:["₹1200","₹1100","₹1300","₹1500"],ans:0},
+    {id:7,q:"A shopkeeper buys an item for ₹400 and sells at ₹480. Profit %?",opts:["15%","18%","20%","25%"],ans:2},
+    {id:8,q:"Find HCF of 36 and 48.",opts:["6","12","8","18"],ans:1},
+    {id:9,q:"Area of a rectangle: length 18m, breadth 12m?",opts:["200 m²","216 m²","180 m²","210 m²"],ans:1},
+    {id:10,q:"Next number in series: 3, 6, 12, 24, ?",opts:["36","42","48","30"],ans:2},
+  ];
+  const [cur, setCur] = useState(0);
+  const [selected, setSelected] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(3600);
+  useEffect(()=>{
+    if(submitted) return;
+    const t = setInterval(()=>setTimeLeft(v=>v>0?v-1:0),1000);
+    return()=>clearInterval(t);
+  },[submitted]);
+  const fmt = s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  const score = questions.filter(q=>selected[q.id]===q.ans).length;
+  if(submitted) return (
+    <div style={{padding:'40px',maxWidth:700,margin:'0 auto',textAlign:'center'}}>
+      <div style={{fontSize:64,marginBottom:12}}>{score>=6?'🎉':'😊'}</div>
+      <h2 style={{fontSize:26,fontWeight:800,marginBottom:8}}>Aptitude Test Completed!</h2>
+      <div style={{fontSize:52,fontWeight:900,background:'linear-gradient(135deg,#818cf8,#c084fc)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',margin:'16px 0'}}>{score*10}%</div>
+      <p style={{color:'rgba(255,255,255,.5)',marginBottom:8}}>You answered <strong style={{color:'#818cf8'}}>{score}</strong> out of <strong style={{color:'#818cf8'}}>{questions.length}</strong> correctly</p>
+      <p style={{color:score>=6?'#34d399':'#f59e0b',fontWeight:700,marginBottom:28,fontSize:15}}>{score>=6?'✅ Passed! You cleared the Aptitude Round.':'⚠️ Below passing score (60%). Better luck next time.'}</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:8,marginBottom:28}}>
+        {questions.map((q,i)=>{
+          const picked=selected[q.id]; const correct=picked===q.ans;
+          return <div key={i} style={{padding:'10px 6px',borderRadius:9,background:picked===undefined?'rgba(255,255,255,.06)':correct?'rgba(52,211,153,.15)':'rgba(239,68,68,.15)',border:`1px solid ${picked===undefined?'rgba(255,255,255,.1)':correct?'rgba(52,211,153,.4)':'rgba(239,68,68,.4)'}`,textAlign:'center'}}>
+            <div style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,.5)',marginBottom:4}}>Q{i+1}</div>
+            <div style={{fontSize:16}}>{picked===undefined?'—':correct?'✅':'❌'}</div>
+          </div>;
+        })}
+      </div>
+      <button className="btn btn-primary" onClick={onBack} style={{minWidth:200}}>← Back to Rounds</button>
+    </div>
+  );
+  const q = questions[cur];
+  return (
+    <div style={{padding:'28px 24px',maxWidth:860,margin:'0 auto'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:22}}>
+        <div>
+          <h2 style={{fontSize:20,fontWeight:800,marginBottom:3}}>🧠 Aptitude Test</h2>
+          <p style={{color:'rgba(255,255,255,.45)',fontSize:13}}>Question {cur+1} of {questions.length}</p>
+        </div>
+        <div style={{display:'flex',gap:14,alignItems:'center'}}>
+          <div style={{padding:'9px 18px',background:timeLeft<300?'rgba(239,68,68,.15)':'rgba(255,255,255,.07)',border:`1px solid ${timeLeft<300?'rgba(239,68,68,.4)':'rgba(255,255,255,.12)'}`,borderRadius:10,fontWeight:800,fontSize:18,color:timeLeft<300?'#f87171':'#818cf8',fontVariantNumeric:'tabular-nums'}}>⏱ {fmt(timeLeft)}</div>
+          <button className="btn btn-outline-white" style={{padding:'9px 16px',fontSize:13}} onClick={onBack}>✕ Exit</button>
+        </div>
+      </div>
+      <div style={{height:6,background:'rgba(255,255,255,.07)',borderRadius:3,marginBottom:26,overflow:'hidden'}}>
+        <div style={{height:'100%',width:`${((cur+1)/questions.length)*100}%`,background:'linear-gradient(90deg,#818cf8,#c084fc)',borderRadius:3,transition:'width .4s'}}/>
+      </div>
+      <div className="card-dark" style={{padding:'28px',marginBottom:20}}>
+        <div style={{fontSize:12,fontWeight:700,color:'#818cf8',letterSpacing:'.08em',marginBottom:12}}>QUESTION {cur+1}</div>
+        <p style={{fontSize:17,fontWeight:600,lineHeight:1.6,marginBottom:28}}>{q.q}</p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          {q.opts.map((opt,i)=>(
+            <button key={i} onClick={()=>setSelected({...selected,[q.id]:i})}
+              style={{padding:'14px 18px',borderRadius:11,border:`2px solid ${selected[q.id]===i?'#818cf8':'rgba(255,255,255,.1)'}`,background:selected[q.id]===i?'rgba(129,140,248,.15)':'rgba(255,255,255,.03)',color:selected[q.id]===i?'#c4b5fd':'rgba(255,255,255,.8)',fontWeight:selected[q.id]===i?700:400,fontSize:14,cursor:'pointer',textAlign:'left',transition:'all .18s',display:'flex',alignItems:'center',gap:10}}>
+              <span style={{width:24,height:24,borderRadius:'50%',border:`2px solid ${selected[q.id]===i?'#818cf8':'rgba(255,255,255,.2)'}`,background:selected[q.id]===i?'#818cf8':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'white',flexShrink:0}}>{['A','B','C','D'][i]}</span>
+              {opt}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          {questions.map((_,i)=>(
+            <button key={i} onClick={()=>setCur(i)} style={{width:34,height:34,borderRadius:7,border:`2px solid ${cur===i?'#818cf8':selected[questions[i].id]!==undefined?'rgba(52,211,153,.5)':'rgba(255,255,255,.15)'}`,background:cur===i?'rgba(129,140,248,.2)':selected[questions[i].id]!==undefined?'rgba(52,211,153,.1)':'transparent',color:cur===i?'#c4b5fd':selected[questions[i].id]!==undefined?'#34d399':'rgba(255,255,255,.4)',fontSize:12,fontWeight:700,cursor:'pointer'}}>{i+1}</button>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:10}}>
+          {cur>0&&<button className="btn btn-outline-white" style={{padding:'10px 20px',fontSize:13}} onClick={()=>setCur(c=>c-1)}>← Prev</button>}
+          {cur<questions.length-1
+            ?<button className="btn btn-primary" style={{padding:'10px 20px',fontSize:13}} onClick={()=>setCur(c=>c+1)}>Next →</button>
+            :<button className="btn btn-primary" style={{padding:'10px 20px',fontSize:13,background:'linear-gradient(135deg,#10b981,#059669)'}} onClick={()=>setSubmitted(true)}>Submit Test ✓</button>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   REASONING TEST PAGE
+════════════════════════════════════════════ */
+const ReasoningTestPage = ({ onBack }) => {
+  const questions = [
+    {id:1,q:"Find the next number: 2, 6, 12, 20, 30, ?",opts:["40","42","44","36"],ans:1},
+    {id:2,q:"If CAT = 24, DOG = ?  (sum of alphabetical positions)",opts:["26","30","24","28"],ans:0},
+    {id:3,q:"Pointing to a man, a woman says 'His mother is the only daughter of my mother.' How is the woman related to the man?",opts:["Grandmother","Mother","Aunt","Sister"],ans:1},
+    {id:4,q:"A is to the North of B, C is to the East of B. In which direction is A from C?",opts:["North","North-West","South-East","West"],ans:1},
+    {id:5,q:"In a certain code, PENCIL = RFPEKN. What does ERASER = ?",opts:["GTCUGT","GTCUFT","GSDTFT","GSDUGT"],ans:0},
+    {id:6,q:"All flowers are plants. Some plants are trees. Which conclusion follows?",opts:["All flowers are trees","Some flowers are trees","No flower is a tree","None of the above"],ans:3},
+    {id:7,q:"Odd one out: 41, 43, 47, 53, 55",opts:["41","47","53","55"],ans:3},
+    {id:8,q:"Letter series: A, C, F, J, O, ?",opts:["U","T","V","S"],ans:0},
+    {id:9,q:"Mirror image of 'HIREX' when placed facing north-south mirror?",opts:["XERIH","HIREX","ХIRЕХ","ХЭRИХ"],ans:0},
+    {id:10,q:"Analogy: Book : Library :: Painting : ?",opts:["Artist","Canvas","Gallery","Museum"],ans:2},
+  ];
+  const [cur,setCur]=useState(0);const [sel,setSel]=useState({});const [done,setDone]=useState(false);const [timeLeft,setTimeLeft]=useState(3600);
+  useEffect(()=>{if(done)return;const t=setInterval(()=>setTimeLeft(v=>v>0?v-1:0),1000);return()=>clearInterval(t);},[done]);
+  const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  const score=questions.filter(q=>sel[q.id]===q.ans).length;
+  if(done) return(
+    <div style={{padding:'40px',maxWidth:700,margin:'0 auto',textAlign:'center'}}>
+      <div style={{fontSize:64,marginBottom:12}}>{score>=6?'🎉':'😊'}</div>
+      <h2 style={{fontSize:26,fontWeight:800,marginBottom:8}}>Reasoning Test Completed!</h2>
+      <div style={{fontSize:52,fontWeight:900,background:'linear-gradient(135deg,#60a5fa,#818cf8)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',margin:'16px 0'}}>{score*10}%</div>
+      <p style={{color:'rgba(255,255,255,.5)',marginBottom:8}}>Correct: <strong style={{color:'#60a5fa'}}>{score}/{questions.length}</strong></p>
+      <p style={{color:score>=6?'#34d399':'#f59e0b',fontWeight:700,marginBottom:28}}>{score>=6?'✅ Passed! Great logical thinking.':'⚠️ Needs improvement. Practice more.'}</p>
+      <button className="btn btn-primary" onClick={onBack} style={{minWidth:200}}>← Back to Rounds</button>
+    </div>
+  );
+  const q=questions[cur];
+  return(
+    <div style={{padding:'28px 24px',maxWidth:860,margin:'0 auto'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:22}}>
+        <div><h2 style={{fontSize:20,fontWeight:800,marginBottom:3}}>💡 Reasoning Test</h2><p style={{color:'rgba(255,255,255,.45)',fontSize:13}}>Question {cur+1} of {questions.length}</p></div>
+        <div style={{display:'flex',gap:14,alignItems:'center'}}>
+          <div style={{padding:'9px 18px',background:'rgba(96,165,250,.1)',border:'1px solid rgba(96,165,250,.3)',borderRadius:10,fontWeight:800,fontSize:18,color:'#60a5fa'}}>⏱ {fmt(timeLeft)}</div>
+          <button className="btn btn-outline-white" style={{padding:'9px 16px',fontSize:13}} onClick={onBack}>✕ Exit</button>
+        </div>
+      </div>
+      <div style={{height:6,background:'rgba(255,255,255,.07)',borderRadius:3,marginBottom:26,overflow:'hidden'}}>
+        <div style={{height:'100%',width:`${((cur+1)/questions.length)*100}%`,background:'linear-gradient(90deg,#60a5fa,#818cf8)',borderRadius:3,transition:'width .4s'}}/>
+      </div>
+      <div className="card-dark" style={{padding:'28px',marginBottom:20}}>
+        <div style={{fontSize:12,fontWeight:700,color:'#60a5fa',letterSpacing:'.08em',marginBottom:12}}>QUESTION {cur+1}</div>
+        <p style={{fontSize:17,fontWeight:600,lineHeight:1.6,marginBottom:28}}>{q.q}</p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          {q.opts.map((opt,i)=>(
+            <button key={i} onClick={()=>setSel({...sel,[q.id]:i})}
+              style={{padding:'14px 18px',borderRadius:11,border:`2px solid ${sel[q.id]===i?'#60a5fa':'rgba(255,255,255,.1)'}`,background:sel[q.id]===i?'rgba(96,165,250,.12)':'rgba(255,255,255,.03)',color:sel[q.id]===i?'#93c5fd':'rgba(255,255,255,.8)',fontWeight:sel[q.id]===i?700:400,fontSize:14,cursor:'pointer',textAlign:'left',transition:'all .18s',display:'flex',alignItems:'center',gap:10}}>
+              <span style={{width:24,height:24,borderRadius:'50%',border:`2px solid ${sel[q.id]===i?'#60a5fa':'rgba(255,255,255,.2)'}`,background:sel[q.id]===i?'#60a5fa':'transparent',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'white',flexShrink:0}}>{['A','B','C','D'][i]}</span>
+              {opt}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          {questions.map((_,i)=>(
+            <button key={i} onClick={()=>setCur(i)} style={{width:34,height:34,borderRadius:7,border:`2px solid ${cur===i?'#60a5fa':sel[questions[i].id]!==undefined?'rgba(52,211,153,.5)':'rgba(255,255,255,.15)'}`,background:cur===i?'rgba(96,165,250,.2)':sel[questions[i].id]!==undefined?'rgba(52,211,153,.1)':'transparent',color:cur===i?'#93c5fd':sel[questions[i].id]!==undefined?'#34d399':'rgba(255,255,255,.4)',fontSize:12,fontWeight:700,cursor:'pointer'}}>{i+1}</button>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:10}}>
+          {cur>0&&<button className="btn btn-outline-white" style={{padding:'10px 20px',fontSize:13}} onClick={()=>setCur(c=>c-1)}>← Prev</button>}
+          {cur<questions.length-1
+            ?<button className="btn btn-primary" style={{padding:'10px 20px',fontSize:13}} onClick={()=>setCur(c=>c+1)}>Next →</button>
+            :<button className="btn btn-primary" style={{padding:'10px 20px',fontSize:13,background:'linear-gradient(135deg,#10b981,#059669)'}} onClick={()=>setDone(true)}>Submit Test ✓</button>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   CODING TEST PAGE
+════════════════════════════════════════════ */
+const CodingTestPage = ({ onBack }) => {
+  const problems = [
+    {id:1,title:'Two Sum',diff:'Easy',color:'#34d399',desc:'Given an array of integers nums and an integer target, return the indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice.',examples:[{input:'nums = [2,7,11,15], target = 9',output:'[0,1]',exp:'nums[0] + nums[1] = 2 + 7 = 9'},{input:'nums = [3,2,4], target = 6',output:'[1,2]',exp:'nums[1] + nums[2] = 2 + 4 = 6'}],constraints:['2 ≤ nums.length ≤ 10⁴','−10⁹ ≤ nums[i] ≤ 10⁹','Only one valid answer exists.'],starter:'def twoSum(nums, target):\n    # Write your solution here\n    pass'},
+    {id:2,title:'Palindrome Check',diff:'Easy',color:'#60a5fa',desc:'Given a string s, return true if it is a palindrome, considering only alphanumeric characters and ignoring cases. Otherwise, return false.',examples:[{input:"s = 'A man a plan a canal Panama'",output:'true',exp:'After cleaning: "amanaplanacanalpanama" is a palindrome.'},{input:"s = 'race a car'",output:'false',exp:'"raceacar" is not a palindrome.'}],constraints:['1 ≤ s.length ≤ 2×10⁵','s consists only of printable ASCII characters.'],starter:'def isPalindrome(s):\n    # Write your solution here\n    pass'},
+  ];
+  const [prob,setProb]=useState(0);const [code,setCode]=useState({0:problems[0].starter,1:problems[1].starter});const [results,setResults]=useState({});const [running,setRunning]=useState(false);const [timeLeft,setTimeLeft]=useState(5400);const [done,setDone]=useState(false);
+  useEffect(()=>{if(done)return;const t=setInterval(()=>setTimeLeft(v=>v>0?v-1:0),1000);return()=>clearInterval(t);},[done]);
+  const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  const runCode=async()=>{setRunning(true);await new Promise(r=>setTimeout(r,1200));setResults({...results,[prob]:{passed:true,output:'[0, 1]',time:'12ms',memory:'14.2 MB'}});setRunning(false);};
+  const p=problems[prob];
+  return(
+    <div style={{padding:'20px 24px',maxWidth:1100,margin:'0 auto'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+        <div><h2 style={{fontSize:20,fontWeight:800,marginBottom:3}}>⌨️ Coding Test</h2><p style={{color:'rgba(255,255,255,.45)',fontSize:13}}>2 Problems · 90 Minutes</p></div>
+        <div style={{display:'flex',gap:12,alignItems:'center'}}>
+          <div style={{padding:'9px 18px',background:'rgba(52,211,153,.1)',border:'1px solid rgba(52,211,153,.3)',borderRadius:10,fontWeight:800,fontSize:18,color:'#34d399'}}>⏱ {fmt(timeLeft)}</div>
+          <button className="btn btn-outline-white" style={{padding:'9px 16px',fontSize:13}} onClick={onBack}>✕ Exit</button>
+        </div>
+      </div>
+      <div style={{display:'flex',gap:10,marginBottom:16}}>
+        {problems.map((pr,i)=>(
+          <button key={i} onClick={()=>setProb(i)} style={{padding:'9px 20px',borderRadius:9,border:`2px solid ${prob===i?pr.color:'rgba(255,255,255,.12)'}`,background:prob===i?`${pr.color}18`:'rgba(255,255,255,.04)',color:prob===i?pr.color:'rgba(255,255,255,.5)',fontWeight:700,fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',gap:7}}>
+            {results[i]&&<span style={{color:'#34d399'}}>✓</span>} {i+1}. {pr.title}
+            <span style={{fontSize:10,padding:'2px 7px',borderRadius:4,background:`${pr.color}22`,color:pr.color,fontWeight:700}}>{pr.diff}</span>
+          </button>
+        ))}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,height:'70vh'}}>
+        {/* Problem */}
+        <div className="card-dark" style={{padding:'22px',overflowY:'auto'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+            <h3 style={{fontSize:17,fontWeight:800}}>{prob+1}. {p.title}</h3>
+            <span style={{fontSize:11,padding:'3px 9px',borderRadius:4,background:`${p.color}22`,color:p.color,fontWeight:700}}>{p.diff}</span>
+          </div>
+          <p style={{fontSize:13.5,color:'rgba(255,255,255,.75)',lineHeight:1.7,marginBottom:18}}>{p.desc}</p>
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,.45)',marginBottom:8,letterSpacing:'.05em'}}>EXAMPLES</div>
+            {p.examples.map((ex,i)=>(
+              <div key={i} style={{background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.08)',borderRadius:9,padding:'13px',marginBottom:10}}>
+                <div style={{fontSize:12.5,color:'rgba(255,255,255,.5)',marginBottom:4}}><strong style={{color:'rgba(255,255,255,.8)'}}>Input:</strong> {ex.input}</div>
+                <div style={{fontSize:12.5,color:'rgba(255,255,255,.5)',marginBottom:4}}><strong style={{color:'rgba(255,255,255,.8)'}}>Output:</strong> {ex.output}</div>
+                <div style={{fontSize:12,color:'rgba(255,255,255,.4)'}}><strong>Explanation:</strong> {ex.exp}</div>
+              </div>
+            ))}
+          </div>
+          <div>
+            <div style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,.45)',marginBottom:8,letterSpacing:'.05em'}}>CONSTRAINTS</div>
+            {p.constraints.map((c,i)=>(
+              <div key={i} style={{fontSize:12.5,color:'rgba(255,255,255,.5)',display:'flex',alignItems:'center',gap:7,marginBottom:5}}>
+                <span style={{width:5,height:5,borderRadius:'50%',background:'#818cf8',flexShrink:0}}/>
+                <code style={{fontFamily:'monospace'}}>{c}</code>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Editor */}
+        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+          <div className="card-dark" style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+            <div style={{padding:'11px 16px',borderBottom:'1px solid rgba(255,255,255,.07)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',gap:6}}><span style={{width:11,height:11,borderRadius:'50%',background:'#ef4444'}}/><span style={{width:11,height:11,borderRadius:'50%',background:'#f59e0b'}}/><span style={{width:11,height:11,borderRadius:'50%',background:'#34d399'}}/></div>
+              <span style={{fontSize:12,color:'rgba(255,255,255,.4)',fontFamily:'monospace'}}>Python 3</span>
+            </div>
+            <textarea value={code[prob]} onChange={e=>setCode({...code,[prob]:e.target.value})} spellCheck={false}
+              style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#e2e8f0',fontFamily:"'Fira Code','Courier New',monospace",fontSize:13.5,lineHeight:1.65,padding:'16px',resize:'none',whiteSpace:'pre'}}/>
+          </div>
+          <div className="card-dark" style={{padding:'14px 16px'}}>
+            {results[prob]?(
+              <div style={{display:'flex',alignItems:'center',gap:14}}>
+                <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(52,211,153,.15)',border:'2px solid rgba(52,211,153,.4)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}}>✅</div>
+                <div><div style={{fontSize:13.5,fontWeight:700,color:'#34d399',marginBottom:2}}>All Test Cases Passed!</div><div style={{fontSize:12,color:'rgba(255,255,255,.4)'}}>Runtime: {results[prob].time} · Memory: {results[prob].memory}</div></div>
+              </div>
+            ):(
+              <div style={{fontSize:12.5,color:'rgba(255,255,255,.35)'}}>Click "Run Code" to test your solution.</div>
+            )}
+          </div>
+          <div style={{display:'flex',gap:10}}>
+            <button onClick={runCode} disabled={running} style={{flex:1,padding:'12px',borderRadius:11,border:'2px solid rgba(52,211,153,.4)',background:'rgba(52,211,153,.08)',color:'#34d399',fontWeight:700,fontSize:13.5,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+              {running?<><span style={{animation:'spin 1s linear infinite',display:'inline-block'}}>⟳</span> Running...</>:'▶ Run Code'}
+            </button>
+            {prob<problems.length-1
+              ?<button onClick={()=>setProb(1)} style={{padding:'12px 20px',borderRadius:11,border:'2px solid rgba(91,95,255,.4)',background:'rgba(91,95,255,.08)',color:'#818cf8',fontWeight:700,fontSize:13.5,cursor:'pointer'}}>Next →</button>
+              :<button onClick={onBack} style={{padding:'12px 20px',borderRadius:11,border:'none',background:'linear-gradient(135deg,#10b981,#059669)',color:'white',fontWeight:700,fontSize:13.5,cursor:'pointer'}}>Submit ✓</button>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   TYPING TEST PAGE
+════════════════════════════════════════════ */
+const TypingTestPage = ({ onBack }) => {
+  const text = "The quick brown fox jumps over the lazy dog. A journey of a thousand miles begins with a single step. Success is not final, failure is not fatal — it is the courage to continue that counts. Technology is best when it brings people together. Innovation distinguishes between a leader and a follower.";
+  const [typed,setTyped]=useState('');const [started,setStarted]=useState(false);const [done,setDone]=useState(false);const [timeLeft,setTimeLeft]=useState(600);const [startTime,setStartTime]=useState(null);
+  useEffect(()=>{if(!started||done)return;const t=setInterval(()=>setTimeLeft(v=>{if(v<=1){setDone(true);return 0;}return v-1;}),1000);return()=>clearInterval(t);},[started,done]);
+  const handleTyping=e=>{if(!started){setStarted(true);setStartTime(Date.now());}setTyped(e.target.value);if(e.target.value.length>=text.length){setDone(true);}};
+  const elapsed=startTime?(Date.now()-startTime)/1000/60:0;
+  const words=typed.trim().split(/\s+/).filter(Boolean).length;
+  const wpm=elapsed>0?Math.round(words/elapsed):0;
+  const correct=typed.split('').filter((c,i)=>c===text[i]).length;
+  const accuracy=typed.length>0?Math.round((correct/typed.length)*100):100;
+  const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  if(done) return(
+    <div style={{padding:'40px',maxWidth:700,margin:'0 auto',textAlign:'center'}}>
+      <div style={{fontSize:64,marginBottom:12}}>⚡</div>
+      <h2 style={{fontSize:26,fontWeight:800,marginBottom:8}}>Typing Test Completed!</h2>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,margin:'24px 0'}}>
+        {[{l:'WPM',v:wpm,c:'#f59e0b',icon:'⚡'},{l:'Accuracy',v:`${accuracy}%`,c:'#34d399',icon:'🎯'},{l:'Characters',v:correct,c:'#60a5fa',icon:'✍️'}].map((s,i)=>(
+          <div key={i} className="card-dark" style={{padding:'20px',borderTop:`3px solid ${s.c}`}}>
+            <div style={{fontSize:28,marginBottom:4}}>{s.icon}</div>
+            <div style={{fontSize:28,fontWeight:900,color:s.c,marginBottom:3}}>{s.v}</div>
+            <div style={{fontSize:12,color:'rgba(255,255,255,.45)'}}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+      <p style={{color:wpm>=40?'#34d399':'#f59e0b',fontWeight:700,marginBottom:28}}>{wpm>=60?'🏆 Excellent! Top-tier typing speed.':wpm>=40?'✅ Good speed! Above average.':'⚠️ Practice more to improve speed.'}</p>
+      <button className="btn btn-primary" onClick={onBack} style={{minWidth:200}}>← Back to Rounds</button>
+    </div>
+  );
+  return(
+    <div style={{padding:'28px 24px',maxWidth:900,margin:'0 auto'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:22}}>
+        <div><h2 style={{fontSize:20,fontWeight:800,marginBottom:3}}>⚡ Typing Test</h2><p style={{color:'rgba(255,255,255,.45)',fontSize:13}}>Type the paragraph as fast and accurately as possible</p></div>
+        <div style={{display:'flex',gap:12,alignItems:'center'}}>
+          <div style={{padding:'9px 18px',background:'rgba(245,158,11,.1)',border:'1px solid rgba(245,158,11,.3)',borderRadius:10,fontWeight:800,fontSize:18,color:'#f59e0b'}}>⏱ {fmt(timeLeft)}</div>
+          <button className="btn btn-outline-white" style={{padding:'9px 16px',fontSize:13}} onClick={onBack}>✕ Exit</button>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:22}}>
+        {[{l:'WPM',v:wpm,c:'#f59e0b'},{l:'Accuracy',v:`${accuracy}%`,c:'#34d399'},{l:'Progress',v:`${Math.min(100,Math.round((typed.length/text.length)*100))}%`,c:'#818cf8'}].map((s,i)=>(
+          <div key={i} className="card-dark" style={{padding:'14px 18px',textAlign:'center'}}>
+            <div style={{fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div>
+            <div style={{fontSize:11.5,color:'rgba(255,255,255,.4)',marginTop:3}}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+      <div className="card-dark" style={{padding:'24px',marginBottom:18,lineHeight:2,fontSize:15,letterSpacing:.3}}>
+        {text.split('').map((ch,i)=>{
+          let color='rgba(255,255,255,.25)';
+          if(i<typed.length) color=typed[i]===ch?'#34d399':'#f87171';
+          return <span key={i} style={{color,background:i===typed.length?'rgba(245,158,11,.3)':undefined,borderRadius:2}}>{ch}</span>;
+        })}
+      </div>
+      <textarea value={typed} onChange={handleTyping} disabled={done} placeholder="Start typing here..."
+        style={{width:'100%',padding:'16px',background:'rgba(255,255,255,.05)',border:'2px solid rgba(245,158,11,.3)',borderRadius:12,color:'#fff',fontSize:15,lineHeight:1.7,outline:'none',resize:'none',fontFamily:'inherit',minHeight:120}}/>
+      <div style={{height:8,background:'rgba(255,255,255,.07)',borderRadius:4,marginTop:12,overflow:'hidden'}}>
+        <div style={{height:'100%',width:`${Math.min(100,(typed.length/text.length)*100)}%`,background:'linear-gradient(90deg,#f59e0b,#f97316)',borderRadius:4,transition:'width .2s'}}/>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   GROUP DISCUSSION PAGE
+════════════════════════════════════════════ */
+const GDTestPage = ({ onBack }) => {
+  const topic = "Artificial Intelligence will replace human jobs in the next decade — Discuss the impact, opportunities and challenges.";
+  const [response,setResponse]=useState('');const [submitted,setSubmitted]=useState(false);const [timeLeft,setTimeLeft]=useState(1800);const [phase,setPhase]=useState('read'); // read, write, done
+  useEffect(()=>{if(phase!=='write'||submitted)return;const t=setInterval(()=>setTimeLeft(v=>{if(v<=1){setSubmitted(true);return 0;}return v-1;}),1000);return()=>clearInterval(t);},[phase,submitted]);
+  const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  const words=response.trim().split(/\s+/).filter(Boolean).length;
+  if(submitted) return(
+    <div style={{padding:'40px',maxWidth:700,margin:'0 auto',textAlign:'center'}}>
+      <div style={{fontSize:64,marginBottom:12}}>👥</div>
+      <h2 style={{fontSize:26,fontWeight:800,marginBottom:8}}>Group Discussion Submitted!</h2>
+      <div style={{padding:'18px 24px',background:'rgba(244,114,182,.08)',border:'1px solid rgba(244,114,182,.25)',borderRadius:12,margin:'20px 0',textAlign:'left'}}>
+        <div style={{fontSize:13,fontWeight:700,color:'#f472b6',marginBottom:8}}>Your Response Summary:</div>
+        <p style={{fontSize:13,color:'rgba(255,255,255,.65)',lineHeight:1.65}}>{response.slice(0,200)}{response.length>200?'...':''}</p>
+        <div style={{marginTop:10,fontSize:12,color:'rgba(255,255,255,.4)'}}>Word count: <strong style={{color:'#f472b6'}}>{words} words</strong></div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:24}}>
+        {[{l:'Word Count',v:words,c:'#f472b6'},{l:'Status',v:'Submitted',c:'#34d399'},{l:'AI Score',c:'#818cf8',v:'Analyzing...'}].map((s,i)=>(
+          <div key={i} className="card-dark" style={{padding:'16px',textAlign:'center'}}><div style={{fontSize:20,fontWeight:800,color:s.c,marginBottom:3}}>{s.v}</div><div style={{fontSize:12,color:'rgba(255,255,255,.4)'}}>{s.l}</div></div>
+        ))}
+      </div>
+      <button className="btn btn-primary" onClick={onBack} style={{minWidth:200}}>← Back to Rounds</button>
+    </div>
+  );
+  if(phase==='read') return(
+    <div style={{padding:'40px 24px',maxWidth:800,margin:'0 auto'}}>
+      <h2 style={{fontSize:20,fontWeight:800,marginBottom:4}}>👥 Group Discussion</h2>
+      <p style={{color:'rgba(255,255,255,.45)',marginBottom:28}}>Read the topic carefully, then write your response.</p>
+      <div style={{padding:'28px',background:'rgba(244,114,182,.07)',border:'2px solid rgba(244,114,182,.25)',borderRadius:14,marginBottom:28}}>
+        <div style={{fontSize:12,fontWeight:700,letterSpacing:'.1em',color:'#f472b6',marginBottom:12}}>📌 DISCUSSION TOPIC</div>
+        <p style={{fontSize:18,fontWeight:700,lineHeight:1.65,color:'#fff'}}>{topic}</p>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:14,marginBottom:28}}>
+        {[{t:'Consider Both Sides',d:'Explore pros and cons of AI replacing jobs — automation benefits vs. unemployment risks.'},{t:'Use Real Examples',d:'Mention industries like manufacturing, healthcare, creative fields, or customer service.'},{t:'Suggest Solutions',d:'Propose reskilling programs, new job categories, or policy frameworks.'},{t:'Structure Your Thoughts',d:'Introduction → Arguments → Counter-arguments → Conclusion (150-300 words ideal).'}].map((h,i)=>(
+          <div key={i} className="card-dark" style={{padding:'16px'}}>
+            <div style={{fontSize:13,fontWeight:700,color:'#f472b6',marginBottom:5}}>💡 {h.t}</div>
+            <div style={{fontSize:12,color:'rgba(255,255,255,.45)',lineHeight:1.5}}>{h.d}</div>
+          </div>
+        ))}
+      </div>
+      <button className="btn btn-primary" style={{padding:'14px 40px',fontSize:15}} onClick={()=>setPhase('write')}>Start Writing →</button>
+    </div>
+  );
+  return(
+    <div style={{padding:'28px 24px',maxWidth:900,margin:'0 auto'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+        <div><h2 style={{fontSize:20,fontWeight:800,marginBottom:3}}>👥 Group Discussion</h2><p style={{color:'rgba(255,255,255,.45)',fontSize:13}}>Write your response</p></div>
+        <div style={{display:'flex',gap:12,alignItems:'center'}}>
+          <div style={{padding:'9px 18px',background:'rgba(244,114,182,.1)',border:'1px solid rgba(244,114,182,.3)',borderRadius:10,fontWeight:800,fontSize:18,color:'#f472b6'}}>⏱ {fmt(timeLeft)}</div>
+          <button className="btn btn-outline-white" style={{padding:'9px 16px',fontSize:13}} onClick={onBack}>✕ Exit</button>
+        </div>
+      </div>
+      <div className="card-dark" style={{padding:'16px 20px',marginBottom:16,borderLeft:'3px solid #f472b6'}}>
+        <div style={{fontSize:11.5,fontWeight:700,color:'#f472b6',marginBottom:5}}>TOPIC</div>
+        <p style={{fontSize:14,color:'rgba(255,255,255,.8)',lineHeight:1.6}}>{topic}</p>
+      </div>
+      <div style={{display:'flex',gap:14,marginBottom:12}}>
+        {[{l:'AI Monitoring',v:'Active 🔴',c:'#ef4444'},{l:'Words',v:words,c:'#f472b6'},{l:'Min Required',v:'150 words',c:'rgba(255,255,255,.4)'}].map((s,i)=>(
+          <div key={i} style={{display:'flex',gap:6,alignItems:'center',fontSize:12.5,color:'rgba(255,255,255,.5)'}}><span style={{fontWeight:700,color:s.c}}>{s.v}</span><span>{s.l}</span></div>
+        ))}
+      </div>
+      <textarea value={response} onChange={e=>setResponse(e.target.value)} placeholder="Write your thoughts here. Introduce the topic, present your arguments with examples, consider counter-points, and conclude with your stance..." rows={14}
+        style={{width:'100%',padding:'18px',background:'rgba(255,255,255,.04)',border:`2px solid ${response.length>0?'rgba(244,114,182,.35)':'rgba(255,255,255,.1)'}`,borderRadius:12,color:'#fff',fontSize:14.5,lineHeight:1.75,outline:'none',resize:'none',fontFamily:'inherit',transition:'border .2s'}}/>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:14}}>
+        <div style={{fontSize:12.5,color:words<150?'#f59e0b':'#34d399',fontWeight:600}}>
+          {words<150?`📝 Write at least ${150-words} more words`:'✅ Good length!'}
+        </div>
+        <button className="btn btn-primary" style={{padding:'12px 32px'}} onClick={()=>setSubmitted(true)} disabled={words<50}>Submit Response →</button>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   AI INTERVIEW PAGE
+════════════════════════════════════════════ */
+const AIInterviewPage = ({ onBack }) => {
+  const questions=[
+    "Tell me about yourself and your background in software development.",
+    "What is your greatest technical strength, and can you give an example of how you applied it?",
+    "Describe a challenging project you worked on. What was your role and what did you learn?",
+    "How do you approach debugging a complex issue in your code?",
+    "Where do you see yourself in the next 3–5 years in your tech career?",
+  ];
+  const [cur,setCur]=useState(0);const [answers,setAnswers]=useState({});const [recording,setRecording]=useState(false);const [done,setDone]=useState(false);const [timer,setTimer]=useState(120);const [phase,setPhase]=useState('intro');
+  useEffect(()=>{if(!recording)return;const t=setInterval(()=>setTimer(v=>{if(v<=1){setRecording(false);return 0;}return v-1;}),1000);return()=>clearInterval(t);},[recording]);
+  const startRecording=()=>{setRecording(true);setTimer(120);};
+  const stopRecording=()=>{setRecording(false);setAnswers({...answers,[cur]:'Response recorded.'});};
+  const next=()=>{if(cur<questions.length-1){setCur(c=>c+1);setTimer(120);setRecording(false);}else{setDone(true);}};
+  const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  if(done) return(
+    <div style={{padding:'40px',maxWidth:700,margin:'0 auto',textAlign:'center'}}>
+      <div style={{fontSize:64,marginBottom:12}}>🤖</div>
+      <h2 style={{fontSize:26,fontWeight:800,marginBottom:8}}>AI Interview Complete!</h2>
+      <p style={{color:'rgba(255,255,255,.5)',marginBottom:24}}>Your responses have been submitted for AI evaluation.</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:28}}>
+        {[{l:'Questions',v:'5/5',c:'#a78bfa'},{l:'Responses',v:Object.keys(answers).length,c:'#34d399'},{l:'AI Score',v:'Analyzing',c:'#60a5fa'}].map((s,i)=>(
+          <div key={i} className="card-dark" style={{padding:'18px',textAlign:'center'}}><div style={{fontSize:22,fontWeight:800,color:s.c,marginBottom:3}}>{s.v}</div><div style={{fontSize:12,color:'rgba(255,255,255,.4)'}}>{s.l}</div></div>
+        ))}
+      </div>
+      <div className="card-dark" style={{padding:'18px',marginBottom:24,textAlign:'left'}}>
+        <div style={{fontSize:13,fontWeight:700,color:'#a78bfa',marginBottom:10}}>🤖 Preliminary AI Feedback</div>
+        {['Communication seems clear and structured.','Demonstrated technical knowledge in responses.','Showed relevant project experience.','Results will be finalized within 24 hours.'].map((fb,i)=>(
+          <div key={i} style={{display:'flex',gap:8,marginBottom:8,fontSize:13,color:'rgba(255,255,255,.65)'}}><span style={{color:'#34d399',flexShrink:0}}>✓</span>{fb}</div>
+        ))}
+      </div>
+      <button className="btn btn-primary" onClick={onBack} style={{minWidth:200}}>← Back to Rounds</button>
+    </div>
+  );
+  if(phase==='intro') return(
+    <div style={{padding:'40px 24px',maxWidth:720,margin:'0 auto',textAlign:'center'}}>
+      <div style={{width:80,height:80,borderRadius:'50%',background:'linear-gradient(135deg,rgba(167,139,250,.2),rgba(147,51,234,.2))',border:'2px solid rgba(167,139,250,.4)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',fontSize:36}}>🤖</div>
+      <h2 style={{fontSize:24,fontWeight:800,marginBottom:8}}>AI Interview Round</h2>
+      <p style={{color:'rgba(255,255,255,.5)',marginBottom:28,lineHeight:1.65}}>You will be asked <strong style={{color:'#a78bfa'}}>5 questions</strong>. For each question, read carefully, then click <strong style={{color:'#a78bfa'}}>Record Answer</strong> to speak or type your response. You have <strong style={{color:'#a78bfa'}}>2 minutes</strong> per question.</p>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginBottom:28,textAlign:'left'}}>
+        {[{i:'🎤',t:'Speak Naturally',d:'Talk as if in a real interview. Be clear and confident.'},{i:'👁️',t:'Eye Contact',d:'Look at the camera for better eye-tracking scores.'},{i:'⏱️',t:'2 Min Per Question',d:'Use your time wisely. Quality over quantity.'},{i:'🔒',t:'AI Proctored',d:'Session is monitored for integrity.'}].map((h,i)=>(
+          <div key={i} className="card-dark" style={{padding:'14px'}}><div style={{fontSize:22,marginBottom:6}}>{h.i}</div><div style={{fontSize:13,fontWeight:700,marginBottom:3}}>{h.t}</div><div style={{fontSize:12,color:'rgba(255,255,255,.4)',lineHeight:1.4}}>{h.d}</div></div>
+        ))}
+      </div>
+      <button className="btn btn-primary" style={{padding:'14px 40px',fontSize:15}} onClick={()=>setPhase('interview')}>Begin Interview →</button>
+    </div>
+  );
+  return(
+    <div style={{padding:'28px 24px',maxWidth:800,margin:'0 auto'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:22}}>
+        <div><h2 style={{fontSize:20,fontWeight:800,marginBottom:3}}>🤖 AI Interview</h2><p style={{color:'rgba(255,255,255,.45)',fontSize:13}}>Question {cur+1} of {questions.length}</p></div>
+        <button className="btn btn-outline-white" style={{padding:'9px 16px',fontSize:13}} onClick={onBack}>✕ Exit</button>
+      </div>
+      <div style={{height:6,background:'rgba(255,255,255,.07)',borderRadius:3,marginBottom:24,overflow:'hidden'}}>
+        <div style={{height:'100%',width:`${((cur+1)/questions.length)*100}%`,background:'linear-gradient(90deg,#a78bfa,#7c3aed)',borderRadius:3,transition:'width .4s'}}/>
+      </div>
+      {/* AI Avatar */}
+      <div style={{display:'flex',gap:18,alignItems:'flex-start',marginBottom:24}}>
+        <div style={{width:52,height:52,borderRadius:'50%',background:'linear-gradient(135deg,#a78bfa,#7c3aed)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,flexShrink:0,boxShadow:'0 0 20px rgba(167,139,250,.4)',animation:recording?undefined:'pulse 2s ease-in-out infinite'}}>🤖</div>
+        <div className="card-dark" style={{flex:1,padding:'20px 24px'}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#a78bfa',marginBottom:8,letterSpacing:'.06em'}}>HIREX AI · QUESTION {cur+1}</div>
+          <p style={{fontSize:16,fontWeight:600,lineHeight:1.65,color:'#fff'}}>{questions[cur]}</p>
+        </div>
+      </div>
+      {/* Response area */}
+      <div className="card-dark" style={{padding:'20px',marginBottom:16}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+          <div style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,.6)'}}>Your Response</div>
+          {recording&&<div style={{display:'flex',alignItems:'center',gap:7,color:'#ef4444',fontSize:13,fontWeight:700}}><span style={{width:8,height:8,borderRadius:'50%',background:'#ef4444',animation:'pulse 1s ease-in-out infinite'}}/>Recording... {fmt(timer)}</div>}
+        </div>
+        <textarea value={answers[cur]||''} onChange={e=>setAnswers({...answers,[cur]:e.target.value})} placeholder="Type your answer here or use the record button..." rows={5}
+          style={{width:'100%',background:'rgba(255,255,255,.04)',border:'1.5px solid rgba(167,139,250,.25)',borderRadius:9,color:'#fff',fontSize:14,lineHeight:1.65,padding:'13px',outline:'none',resize:'none',fontFamily:'inherit'}}/>
+      </div>
+      <div style={{display:'flex',gap:12,justifyContent:'space-between',alignItems:'center'}}>
+        <div style={{display:'flex',gap:10}}>
+          <button onClick={recording?stopRecording:startRecording} style={{padding:'11px 22px',borderRadius:10,border:`2px solid ${recording?'rgba(239,68,68,.5)':'rgba(167,139,250,.4)'}`,background:recording?'rgba(239,68,68,.1)':'rgba(167,139,250,.08)',color:recording?'#f87171':'#a78bfa',fontWeight:700,fontSize:13.5,cursor:'pointer',display:'flex',alignItems:'center',gap:8}}>
+            {recording?<>⏹ Stop Recording</>:<>🎤 Record Answer</>}
+          </button>
+        </div>
+        <button onClick={next} style={{padding:'12px 28px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#a78bfa,#7c3aed)',color:'white',fontWeight:700,fontSize:14,cursor:'pointer'}}>
+          {cur<questions.length-1?'Next Question →':'Finish Interview ✓'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   RESUME SCREENING PAGE (HR)
+════════════════════════════════════════════ */
+const ResumeScreeningPage = () => {
+  const candidates = [
+    {id:1,name:'Praveen Kumar',role:'Software Engineer',degree:'B.E. CSE',college:'Sri Jayachamarajendra College of Engineering, Mysuru',university:'VTU, Belagavi',year:2023,cgpa:7.88,phone:'+91 78926 12345',email:'praveenkumar.official@gmail.com',location:'Hassan, Karnataka',skills:['C','Java','Python','HTML','CSS','JavaScript','SQL','Data Structures','OOPs','Git & GitHub','MS Office'],project:{title:'Online Student Attendance System',tech:'HTML, CSS, JavaScript, PHP, MySQL',desc:'Developed a web-based application to manage student attendance, allowing teachers to mark attendance and generate reports.'},work:{role:'Software Trainee',company:'QSpiders Software Testing Training Institute',period:'Feb 2024 – May 2024',points:['Underwent training in Software Testing (Manual Testing, SDLC, STLC, Test Cases)','Gained hands-on experience in writing test cases and reporting bugs','Worked on live projects and improved technical knowledge and teamwork']},match:82,status:'Shortlisted',avatar:'PK',color:'#818cf8'},
+    {id:2,name:'Priya Sharma',role:'Software Developer',degree:'BCA',college:'Jaipur National University, Jaipur',university:'Jaipur National University',year:2023,cgpa:8.21,phone:'+91 98765 43210',email:'priyasharma123@gmail.com',location:'Jaipur, Rajasthan',skills:['C','C++','Python','HTML','CSS','JavaScript','Bootstrap','MySQL','VS Code','Git','GitHub'],project:{title:'Online Book Store',tech:'HTML, CSS, JavaScript, PHP, MySQL',desc:'Developed a dynamic online book store website where users can browse, search and purchase books with authentication and payment integration.'},work:{role:'Web Developer Intern',company:'CodeClause Technologies, Remote',period:'Jan 2024 – Mar 2024',points:['Developed responsive websites using HTML, CSS, JavaScript and Bootstrap','Collaborated with the team to design and implement new features','Optimized websites for performance and mobile responsiveness','Gained hands-on experience in front-end development and version control (Git)']},match:78,status:'In Review',avatar:'PS',color:'#60a5fa'},
+    {id:3,name:'Anjali Menon',role:'Software Developer',degree:'B.E. CSE',college:'Rajagiri School of Engineering & Technology, Kochi',university:'APJ Abdul Kalam Technological University',year:2024,cgpa:8.48,phone:'+91 62354 78901',email:'anjalimenon2002@gmail.com',location:'Kochi, Kerala',skills:['C','C++','Python','Java','HTML','CSS','JavaScript','Bootstrap','MySQL','SQLite','VS Code','Git','GitHub','Postman'],project:{title:'Online Book Store',tech:'HTML, CSS, JavaScript, PHP, MySQL',desc:'Developed a full-stack web application to browse and purchase books online with user authentication, shopping cart, and secure payment gateway.'},work:{role:'Software Development Intern',company:'Luminar Technolab, Kochi, Kerala',period:'Jan 2024 – Apr 2024',points:['Developed responsive web pages using HTML, CSS, JavaScript and Bootstrap','Collaborated with the development team to build and test new features','Fixed bugs and improved application performance','Gained hands-on experience in Git, GitHub and Agile environment']},match:91,status:'Shortlisted',avatar:'AM',color:'#34d399'},
+    {id:4,name:'Rahul N',role:'Software Engineer',degree:'B.E. CSE',college:'Sri Jayachamarajendra College of Engineering',university:'VTU, Belagavi',year:2023,cgpa:7.92,phone:'+91 99887 65432',email:'rahuln.official@gmail.com',location:'Bengaluru, Karnataka',skills:['C','Java','Python','HTML','CSS','JavaScript','SQL','Data Structures','OOPs','Git & GitHub','MS Office'],project:{title:'E-Commerce Website',tech:'HTML, CSS, JavaScript, PHP, MySQL',desc:'Built a full-featured e-commerce platform with product listings, cart management, user authentication and order tracking.'},work:{role:'Software Trainee',company:'QSpiders, Bengaluru',period:'Jun 2023 – Sep 2023 (4 months)',points:['Trained in full-stack web development with Java and MySQL','Worked on real-time projects simulating enterprise-level environments','Improved problem-solving and teamwork skills']},match:83,status:'Shortlisted',avatar:'RN',color:'#f59e0b'},
+    {id:5,name:'Kavi Priya S',role:'Software Developer',degree:'B.E. CSE',college:'Anna University, Chennai',university:'Anna University',year:2024,cgpa:8.32,phone:'+91 77889 90011',email:'kavipriyas@gmail.com',location:'Chennai, Tamil Nadu',skills:['C','C++','Java','Python','HTML','CSS','JavaScript','Bootstrap','MySQL','Data Structures & Algorithms','OOP','Git & GitHub'],project:{title:'Online Food Ordering System',tech:'HTML, CSS, JavaScript, PHP, MySQL',desc:'Developed an online food ordering system with restaurant listings, menu management, cart, and order tracking for seamless user experience.'},work:{role:'Software Developer Intern',company:'CodeAlpha Technologies',period:'Jan 2024 – May 2024 (5 months)',points:['Developed and maintained web application features using full-stack technologies','Participated in code reviews and team sprints','Optimized SQL queries and improved database performance']},match:88,status:'Shortlisted',avatar:'KP',color:'#f472b6'},
+  ];
+  const [filter,setFilter]=useState('all');const [selected,setSelected]=useState(null);const [statuses,setStatuses]=useState({1:'Shortlisted',2:'In Review',3:'Shortlisted',4:'Shortlisted',5:'Shortlisted'});
+  const statusColor={Shortlisted:'#34d399','In Review':'#f59e0b',Rejected:'#f87171',Pending:'#94a3b8'};
+  const filtered=candidates.filter(c=>filter==='all'||statuses[c.id]===filter);
+  if(selected){
+    const c=candidates.find(x=>x.id===selected);
+    const st=statuses[c.id];
+    return(
+      <div style={{padding:'24px 28px',maxWidth:1000,margin:'0 auto'}}>
+        <button onClick={()=>setSelected(null)} style={{background:'none',border:'none',color:'#818cf8',fontSize:14,fontWeight:600,cursor:'pointer',marginBottom:18,display:'flex',alignItems:'center',gap:6}}>← Back to Candidates</button>
+        <div style={{display:'grid',gridTemplateColumns:'300px 1fr',gap:20}}>
+          {/* Left panel */}
+          <div>
+            <div className="card-dark" style={{padding:'24px',marginBottom:16,textAlign:'center'}}>
+              <div style={{width:72,height:72,borderRadius:'50%',background:`linear-gradient(135deg,${c.color},${c.color}88)`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,fontWeight:700,color:'white',margin:'0 auto 14px'}}>{c.avatar}</div>
+              <h2 style={{fontSize:18,fontWeight:800,marginBottom:4}}>{c.name}</h2>
+              <p style={{fontSize:13,color:c.color,fontWeight:600,marginBottom:12}}>{c.role}</p>
+              <div style={{fontSize:32,fontWeight:900,color:c.match>=90?'#34d399':c.match>=80?'#60a5fa':'#f59e0b',marginBottom:4}}>{c.match}%</div>
+              <div style={{fontSize:12,color:'rgba(255,255,255,.4)',marginBottom:16}}>AI Match Score</div>
+              <div style={{height:8,background:'rgba(255,255,255,.07)',borderRadius:4,overflow:'hidden',marginBottom:16}}>
+                <div style={{height:'100%',width:`${c.match}%`,background:`linear-gradient(90deg,${c.color},${c.color}88)`,borderRadius:4}}/>
+              </div>
+              <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+                <button onClick={()=>setStatuses({...statuses,[c.id]:'Shortlisted'})} style={{flex:1,padding:'9px',borderRadius:8,border:`2px solid ${st==='Shortlisted'?'#34d399':'rgba(52,211,153,.25)'}`,background:st==='Shortlisted'?'rgba(52,211,153,.15)':'transparent',color:'#34d399',fontWeight:700,fontSize:12,cursor:'pointer'}}>✓ Shortlist</button>
+                <button onClick={()=>setStatuses({...statuses,[c.id]:'Rejected'})} style={{flex:1,padding:'9px',borderRadius:8,border:`2px solid ${st==='Rejected'?'#f87171':'rgba(239,68,68,.25)'}`,background:st==='Rejected'?'rgba(239,68,68,.15)':'transparent',color:'#f87171',fontWeight:700,fontSize:12,cursor:'pointer'}}>✗ Reject</button>
+              </div>
+            </div>
+            <div className="card-dark" style={{padding:'18px'}}>
+              <div style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,.4)',marginBottom:12,letterSpacing:'.06em'}}>CONTACT</div>
+              {[{i:'📞',v:c.phone},{i:'✉️',v:c.email},{i:'📍',v:c.location}].map((x,i)=>(
+                <div key={i} style={{display:'flex',gap:9,alignItems:'flex-start',marginBottom:10,fontSize:12.5,color:'rgba(255,255,255,.65)'}}><span>{x.i}</span>{x.v}</div>
+              ))}
+              <div style={{marginTop:12,paddingTop:12,borderTop:'1px solid rgba(255,255,255,.07)'}}>
+                {[{l:'Degree',v:c.degree},{l:'University',v:c.university},{l:'Year',v:c.year},{l:'CGPA',v:c.cgpa}].map((x,i)=>(
+                  <div key={i} style={{display:'flex',justifyContent:'space-between',marginBottom:7,fontSize:12.5}}><span style={{color:'rgba(255,255,255,.4)'}}>{x.l}</span><span style={{fontWeight:600,color:'rgba(255,255,255,.8)'}}>{x.v}</span></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Right panel */}
+          <div style={{display:'flex',flexDirection:'column',gap:16}}>
+            <div className="card-dark" style={{padding:'20px'}}>
+              <div style={{fontSize:14,fontWeight:700,marginBottom:14,color:'rgba(255,255,255,.8)'}}>🔧 Key Skills</div>
+              <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                {c.skills.map((sk,i)=>(
+                  <span key={i} style={{padding:'5px 12px',background:`${c.color}18`,border:`1px solid ${c.color}44`,borderRadius:20,fontSize:12,color:c.color,fontWeight:600}}>{sk}</span>
+                ))}
+              </div>
+            </div>
+            <div className="card-dark" style={{padding:'20px'}}>
+              <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:'rgba(255,255,255,.8)'}}>💻 Academic Project</div>
+              <div style={{fontWeight:700,fontSize:14,color:c.color,marginBottom:4}}>{c.project.title}</div>
+              <div style={{fontSize:12,color:'rgba(255,255,255,.4)',marginBottom:8}}>Tech: {c.project.tech}</div>
+              <p style={{fontSize:13,color:'rgba(255,255,255,.65)',lineHeight:1.6}}>{c.project.desc}</p>
+            </div>
+            <div className="card-dark" style={{padding:'20px'}}>
+              <div style={{fontSize:14,fontWeight:700,marginBottom:12,color:'rgba(255,255,255,.8)'}}>💼 Work Experience</div>
+              <div style={{fontWeight:700,fontSize:14,marginBottom:2}}>{c.work.role}</div>
+              <div style={{fontSize:13,color:c.color,fontWeight:600,marginBottom:2}}>{c.work.company}</div>
+              <div style={{fontSize:12,color:'rgba(255,255,255,.4)',marginBottom:12}}>{c.work.period}</div>
+              {c.work.points.map((pt,i)=>(
+                <div key={i} style={{display:'flex',gap:8,marginBottom:7,fontSize:13,color:'rgba(255,255,255,.65)'}}><span style={{color:c.color,flexShrink:0}}>•</span>{pt}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return(
+    <div style={{padding:'28px'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:24,flexWrap:'wrap',gap:12}}>
+        <div>
+          <h1 style={{fontSize:22,fontWeight:800,marginBottom:4}}>📄 Resume Screening</h1>
+          <p style={{color:'rgba(255,255,255,.45)',fontSize:13.5}}>AI-powered resume analysis for Software Engineer position</p>
+        </div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          {['all','Shortlisted','In Review','Rejected'].map(f=>(
+            <button key={f} onClick={()=>setFilter(f)} style={{padding:'8px 16px',borderRadius:20,border:`1.5px solid ${filter===f?'#5b5fff':'rgba(255,255,255,.14)'}`,background:filter===f?'rgba(91,95,255,.15)':'transparent',color:filter===f?'#818cf8':'rgba(255,255,255,.5)',fontWeight:600,fontSize:12.5,cursor:'pointer'}}>
+              {f==='all'?`All (${candidates.length})`:f}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(290px,1fr))',gap:16}}>
+        {filtered.map(c=>{
+          const st=statuses[c.id];
+          return(
+            <div key={c.id} className="card-dark" style={{padding:'20px',cursor:'pointer',transition:'transform .2s,box-shadow .2s',borderTop:`3px solid ${c.color}`}}
+              onClick={()=>setSelected(c.id)}
+              onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.boxShadow=`0 12px 32px rgba(0,0,0,.3)`;}}
+              onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none';}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
+                <div style={{display:'flex',gap:12,alignItems:'center'}}>
+                  <div style={{width:44,height:44,borderRadius:'50%',background:`linear-gradient(135deg,${c.color},${c.color}66)`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'white',flexShrink:0}}>{c.avatar}</div>
+                  <div><div style={{fontSize:15,fontWeight:700}}>{c.name}</div><div style={{fontSize:12,color:c.color,fontWeight:600}}>{c.role}</div></div>
+                </div>
+                <div style={{textAlign:'right'}}>
+                  <div style={{fontSize:20,fontWeight:800,color:c.match>=90?'#34d399':c.match>=80?'#60a5fa':'#f59e0b'}}>{c.match}%</div>
+                  <div style={{fontSize:10.5,color:'rgba(255,255,255,.35)'}}>AI Match</div>
+                </div>
+              </div>
+              <div style={{height:5,background:'rgba(255,255,255,.07)',borderRadius:3,overflow:'hidden',marginBottom:12}}>
+                <div style={{height:'100%',width:`${c.match}%`,background:`linear-gradient(90deg,${c.color},${c.color}88)`,borderRadius:3}}/>
+              </div>
+              <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+                <span style={{fontSize:11,color:'rgba(255,255,255,.45)',display:'flex',gap:4}}><span>🎓</span>{c.degree} · {c.cgpa} CGPA</span>
+                <span style={{fontSize:11,color:'rgba(255,255,255,.45)',display:'flex',gap:4}}><span>🏫</span>{c.year}</span>
+              </div>
+              <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:12}}>
+                {c.skills.slice(0,5).map((sk,i)=>(
+                  <span key={i} style={{padding:'3px 9px',background:'rgba(255,255,255,.06)',borderRadius:12,fontSize:11,color:'rgba(255,255,255,.6)'}}>{sk}</span>
+                ))}
+                {c.skills.length>5&&<span style={{padding:'3px 9px',background:'rgba(255,255,255,.06)',borderRadius:12,fontSize:11,color:'rgba(255,255,255,.4)'}}>+{c.skills.length-5}</span>}
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <span style={{fontSize:11.5,fontWeight:700,color:statusColor[st]||'#94a3b8',background:`${statusColor[st]||'#94a3b8'}18`,padding:'3px 10px',borderRadius:10}}>{st}</span>
+                <div style={{display:'flex',gap:6}}>
+                  <button onClick={e=>{e.stopPropagation();setStatuses({...statuses,[c.id]:'Shortlisted'});}} style={{padding:'5px 11px',borderRadius:7,border:'1.5px solid rgba(52,211,153,.35)',background:'rgba(52,211,153,.08)',color:'#34d399',fontWeight:700,fontSize:11.5,cursor:'pointer'}}>✓</button>
+                  <button onClick={e=>{e.stopPropagation();setStatuses({...statuses,[c.id]:'Rejected'});}} style={{padding:'5px 11px',borderRadius:7,border:'1.5px solid rgba(239,68,68,.35)',background:'rgba(239,68,68,.08)',color:'#f87171',fontWeight:700,fontSize:11.5,cursor:'pointer'}}>✗</button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   5. CANDIDATE DASHBOARD SHELL
+════════════════════════════════════════════ */
+const CandidateDash = ({ navigate }) => {
+  const [active, setActive] = useState('test-rounds');
+  const [testPage, setTestPage] = useState(null); // 'aptitude'|'reasoning'|'coding'|'typing'|'gd'|'ai'
+  const goTest = (t) => setTestPage(t);
+  const backToRounds = () => { setTestPage(null); setActive('test-rounds'); };
+  // If a test is open, render it full-screen instead
+  if(testPage==='aptitude') return <div style={{minHeight:'100vh',background:'#070b1f',color:'#fff'}}><div style={{padding:'14px 24px',borderBottom:'1px solid rgba(255,255,255,.07)',display:'flex',gap:12,alignItems:'center'}}><HirexBrand size="sm"/></div><AptitudeTestPage onBack={backToRounds}/></div>;
+  if(testPage==='reasoning') return <div style={{minHeight:'100vh',background:'#070b1f',color:'#fff'}}><div style={{padding:'14px 24px',borderBottom:'1px solid rgba(255,255,255,.07)',display:'flex',gap:12,alignItems:'center'}}><HirexBrand size="sm"/></div><ReasoningTestPage onBack={backToRounds}/></div>;
+  if(testPage==='coding') return <div style={{minHeight:'100vh',background:'#070b1f',color:'#fff'}}><div style={{padding:'14px 24px',borderBottom:'1px solid rgba(255,255,255,.07)',display:'flex',gap:12,alignItems:'center'}}><HirexBrand size="sm"/></div><CodingTestPage onBack={backToRounds}/></div>;
+  if(testPage==='typing') return <div style={{minHeight:'100vh',background:'#070b1f',color:'#fff'}}><div style={{padding:'14px 24px',borderBottom:'1px solid rgba(255,255,255,.07)',display:'flex',gap:12,alignItems:'center'}}><HirexBrand size="sm"/></div><TypingTestPage onBack={backToRounds}/></div>;
+  if(testPage==='gd') return <div style={{minHeight:'100vh',background:'#070b1f',color:'#fff'}}><div style={{padding:'14px 24px',borderBottom:'1px solid rgba(255,255,255,.07)',display:'flex',gap:12,alignItems:'center'}}><HirexBrand size="sm"/></div><GDTestPage onBack={backToRounds}/></div>;
+  if(testPage==='ai') return <div style={{minHeight:'100vh',background:'#070b1f',color:'#fff'}}><div style={{padding:'14px 24px',borderBottom:'1px solid rgba(255,255,255,.07)',display:'flex',gap:12,alignItems:'center'}}><HirexBrand size="sm"/></div><AIInterviewPage onBack={backToRounds}/></div>;
+  const pages = {
+    'overview': <OverviewPage setActive={setActive}/>,
+    'test-rounds': <TestRoundsPage goTest={goTest}/>,
+    'ai-interview': <AIInterviewPage onBack={()=>setActive('test-rounds')}/>,
+    'performance': <div style={{padding:'60px',textAlign:'center'}}><div style={{fontSize:64,marginBottom:14}}>📈</div><h2 style={{fontSize:20,fontWeight:700,marginBottom:8}}>My Performance</h2><p style={{color:'rgba(255,255,255,.4)'}}>Detailed analytics coming soon.</p></div>,
+    'reports': <div style={{padding:'60px',textAlign:'center'}}><div style={{fontSize:64,marginBottom:14}}>📄</div><h2 style={{fontSize:20,fontWeight:700,marginBottom:8}}>My Reports</h2><p style={{color:'rgba(255,255,255,.4)'}}>Download your test reports here.</p></div>,
+    'messages': <div style={{padding:'60px',textAlign:'center'}}><div style={{fontSize:64,marginBottom:14}}>💬</div><h2 style={{fontSize:20,fontWeight:700,marginBottom:8}}>Messages</h2><p style={{color:'rgba(255,255,255,.4)'}}>2 unread messages.</p></div>,
+    'notifications': <div style={{padding:'60px',textAlign:'center'}}><div style={{fontSize:64,marginBottom:14}}>🔔</div><h2 style={{fontSize:20,fontWeight:700,marginBottom:8}}>Notifications</h2><p style={{color:'rgba(255,255,255,.4)'}}>4 new notifications.</p></div>,
+    'profile': <div style={{padding:'60px',textAlign:'center'}}><div style={{fontSize:64,marginBottom:14}}>👤</div><h2 style={{fontSize:20,fontWeight:700,marginBottom:8}}>Profile</h2><p style={{color:'rgba(255,255,255,.4)'}}>Edit your profile and upload resume.</p></div>,
+    'help': <div style={{padding:'60px',textAlign:'center'}}><div style={{fontSize:64,marginBottom:14}}>❓</div><h2 style={{fontSize:20,fontWeight:700,marginBottom:8}}>Help & Support</h2><p style={{color:'rgba(255,255,255,.4)'}}>Contact our support team.</p></div>,
+  };
+  return(
+    <div style={{display:'flex',minHeight:'100vh',background:'#070b1f'}}>
+      <Sidebar active={active} setActive={setActive} navigate={navigate}/>
+      <div style={{flex:1,display:'flex',flexDirection:'column',minWidth:0}}>
+        <TopBar/>
+        <main className="dash-main">{pages[active]||pages['overview']}</main>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   6. HR DASHBOARD
+════════════════════════════════════════════ */
+const HRDash = ({ navigate }) => {
+  const [active, setActive] = useState('overview');
+  const stats=[{l:'Active Jobs',v:'12',c:'#5b5fff',i:'💼',d:'+3 this week'},{l:'Total Candidates',v:'248',c:'#60a5fa',i:'👥',d:'+18 today'},{l:'Shortlisted',v:'34',c:'#34d399',i:'⭐',d:'+5 new'},{l:'Hired This Month',v:'8',c:'#f59e0b',i:'🏆',d:'Great progress!'}];
+  const cands=[{n:'Rahul Sharma',r:'Software Engineer',s:94,st:'Shortlisted',a:'RS'},{n:'Priya Patel',r:'Data Analyst',s:89,st:'In Review',a:'PP'},{n:'Amit Kumar',r:'Product Manager',s:76,st:'Pending',a:'AK'},{n:'Neha Singh',r:'UX Designer',s:91,st:'Shortlisted',a:'NS'},{n:'Vikram Rao',r:'Backend Developer',s:83,st:'In Review',a:'VR'}];
+  const sc={Shortlisted:'#34d399','In Review':'#f59e0b',Pending:'#94a3b8'};
+  const navItems=[{i:'⊞',l:'Dashboard',k:'overview'},{i:'📄',l:'Resume Screening',k:'screening'},{i:'💼',l:'Manage Jobs',k:'jobs'},{i:'👥',l:'View Candidates',k:'candidates'},{i:'⭐',l:'Shortlisted',k:'shortlisted'},{i:'📊',l:'Reports',k:'reports'},{i:'🔔',l:'Notifications',k:'notif',b:2},{i:'⚙️',l:'Settings',k:'settings'}];
+  return(
+    <div style={{display:'flex',minHeight:'100vh',background:'#070b1f'}}>
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <div style={{padding:'22px 18px',borderBottom:'1px solid rgba(255,255,255,.06)'}}>
+          <HirexBrand size="sm"/>
+          <div style={{marginTop:9}}><span style={{fontSize:9.5,fontWeight:700,letterSpacing:'.1em',color:'#34d399',background:'rgba(16,185,129,.1)',padding:'3px 8px',borderRadius:4}}>HR / ADMIN</span></div>
+        </div>
+        <nav style={{flex:1,padding:'10px 0'}}>
+          {navItems.map(it=>(
+            <button key={it.k} className={`nav-item${active===it.k?' active':''}`} onClick={()=>setActive(it.k)}>
+              <span style={{fontSize:15,flexShrink:0}}>{it.i}</span>
+              <span style={{flex:1}}>{it.l}</span>
+              {it.b&&<span style={{background:'#ef4444',color:'white',fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:10}}>{it.b}</span>}
+            </button>
+          ))}
+        </nav>
+        <div style={{borderTop:'1px solid rgba(255,255,255,.06)',padding:'10px 0'}}>
+          <button className="nav-item" style={{color:'rgba(255,255,255,.38)'}} onClick={()=>navigate('landing')}
+            onMouseEnter={e=>e.currentTarget.style.color='#f87171'} onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,.38)'}>
+            <span style={{fontSize:15}}>↩</span><span>Logout</span>
+          </button>
+        </div>
+      </aside>
+      {/* Main */}
+      <div style={{flex:1,display:'flex',flexDirection:'column',minWidth:0}}>
+        <header className="topbar">
+          <div style={{fontSize:15,fontWeight:700}}>HR Dashboard 📊</div>
+          <div style={{display:'flex',alignItems:'center',gap:12}}>
+            <button style={{position:'relative',background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.1)',borderRadius:10,width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'rgba(255,255,255,.6)'}}>
+              🔔<span style={{position:'absolute',top:-4,right:-4,width:15,height:15,background:'#ef4444',borderRadius:'50%',fontSize:9,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',color:'white',border:'2px solid #0a0e28'}}>2</span>
+            </button>
+            <div style={{display:'flex',alignItems:'center',gap:9,padding:'5px 9px',borderRadius:9,cursor:'pointer'}}>
+              <div style={{width:34,height:34,borderRadius:'50%',background:'linear-gradient(135deg,#34d399,#10b981)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div><div style={{fontSize:12.5,fontWeight:600}}>Hello, Admin</div><div style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>hr@company.com</div></div>
+            </div>
+          </div>
+        </header>
+        <main className="dash-main">
+          {active==='overview'&&(
+            <div style={{padding:'28px'}}>
+              <h1 style={{fontSize:22,fontWeight:800,marginBottom:4}}>HR Dashboard 📊</h1>
+              <p style={{color:'rgba(255,255,255,.45)',fontSize:13.5,marginBottom:26}}>Manage your hiring pipeline and evaluate candidates.</p>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:14,marginBottom:28}}>
+                {stats.map((s,i)=>(
+                  <div key={i} className="card-dark" style={{padding:'18px 20px',borderTop:`3px solid ${s.c}`}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+                      <div><div style={{fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:12.5,color:'rgba(255,255,255,.45)',marginBottom:4}}>{s.l}</div><div style={{fontSize:11,color:s.c,fontWeight:500}}>{s.d}</div></div>
+                      <span style={{fontSize:26}}>{s.i}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'3fr 1fr',gap:18}}>
+                <div className="card-dark" style={{padding:'22px'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+                    <h3 style={{fontSize:15,fontWeight:700}}>Recent Candidates</h3>
+                    <button onClick={()=>setActive('candidates')} style={{background:'none',border:'none',color:'#818cf8',fontSize:12.5,fontWeight:600,cursor:'pointer'}}>View All →</button>
+                  </div>
+                  {cands.map((c,i)=>(
+                    <div key={i} style={{display:'flex',alignItems:'center',gap:13,padding:'11px',background:'rgba(255,255,255,.03)',borderRadius:9,border:'1px solid rgba(255,255,255,.05)',marginBottom:10,cursor:'pointer',transition:'background .2s'}}
+                      onMouseEnter={e=>e.currentTarget.style.background='rgba(91,95,255,.06)'}
+                      onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,.03)'}
+                    >
+                      <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,#5b5fff,#9333ea)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'white',flexShrink:0}}>{c.a}</div>
+                      <div style={{flex:1}}><div style={{fontSize:13.5,fontWeight:600}}>{c.n}</div><div style={{fontSize:11.5,color:'rgba(255,255,255,.4)'}}>{c.r}</div></div>
+                      <div style={{textAlign:'right'}}><div style={{fontSize:15,fontWeight:800,color:c.s>=90?'#34d399':c.s>=80?'#f59e0b':'rgba(255,255,255,.5)'}}>{c.s}%</div><div style={{fontSize:11,fontWeight:600,color:sc[c.st]}}>{c.st}</div></div>
+                    </div>
+                  ))}
+                </div>
+                <div className="card-dark" style={{padding:'22px'}}>
+                  <h3 style={{fontSize:15,fontWeight:700,marginBottom:14}}>Quick Actions</h3>
+                  {[{l:'Post New Job',i:'➕',c:'#5b5fff'},{l:'View Reports',i:'📊',c:'#60a5fa'},{l:'Shortlist Candidates',i:'⭐',c:'#34d399'},{l:'Schedule Interviews',i:'📅',c:'#f59e0b'},{l:'Export Data',i:'📥',c:'#a78bfa'}].map((a,i)=>(
+                    <button key={i} style={{display:'flex',alignItems:'center',gap:9,padding:'11px 13px',background:`${a.c}11`,border:`1px solid ${a.c}22`,borderRadius:9,color:'white',fontSize:13,cursor:'pointer',textAlign:'left',width:'100%',marginBottom:9,transition:'background .2s',fontWeight:500}}
+                      onMouseEnter={e=>e.currentTarget.style.background=`${a.c}22`}
+                      onMouseLeave={e=>e.currentTarget.style.background=`${a.c}11`}
+                    ><span>{a.i}</span>{a.l}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          {active==='screening'&&<ResumeScreeningPage/>}
+          {active!=='overview'&&active!=='screening'&&(
+            <div style={{padding:'60px',textAlign:'center'}}>
+              <div style={{fontSize:64,marginBottom:14}}>🚧</div>
+              <h2 style={{fontSize:20,fontWeight:700,marginBottom:8}}>{navItems.find(n=>n.k===active)?.l||'Page'}</h2>
+              <p style={{color:'rgba(255,255,255,.4)'}}>This section is coming soon.</p>
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════
+   ROOT APP — client-side router
+════════════════════════════════════════════ */
+const App = () => {
+  const [page, setPage] = useState('landing');
+  const [pageState, setPageState] = useState({});
+  const [theme, setTheme] = useState('dark');
+
+  const toggleTheme = () => {
+    setTheme(t => {
+      const next = t==='dark'?'light':'dark';
+      document.body.className = next;
+      return next;
+    });
+  };
+
+  const navigate = (p, s={}) => { setPage(p); setPageState(s); window.scrollTo(0,0); };
+
+  const pages = {
+    'landing': <LandingPage navigate={navigate} theme={theme} toggleTheme={toggleTheme}/>,
+    'auth': <AuthPage navigate={navigate} theme={theme} toggleTheme={toggleTheme}/>,
+    'verify': <VerifyPage navigate={navigate} theme={theme} toggleTheme={toggleTheme} state={pageState}/>,
+    'hr-login': <HRLoginPage navigate={navigate} theme={theme} toggleTheme={toggleTheme}/>,
+    'candidate': <CandidateDash navigate={navigate}/>,
+    'hr-dash': <HRDash navigate={navigate}/>,
+  };
+
+  return pages[page] || pages['landing'];
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
